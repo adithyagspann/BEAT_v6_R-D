@@ -1,0 +1,900 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright © 2017-2020, GSPANN Technologies and/or its affiliates. All rights reserved.
+ *
+ * This software and related documentation are provided under a license agreement containing restrictions on use and 
+ * disclosure and are protected by intellectual property laws. Except as expressly permitted in your license agreement 
+ * or allowed by law, you may not use, copy, reproduce, translate, broadcast, modify, license, transmit, distribute,
+ * exhibit, perform, publish, or display any part, in any form, or by any means. Reverse engineering, disassembly
+ * or decompilation of this software, unless required by law for interoperability, is prohibited.
+ *
+ * The information contained herein is subject to change without notice and is not warranted to be error-free.
+ * If you find any errors, please report them to us in writing.
+ *
+ * If this software or related documentation is delivered to the U.S. Government or anyone licensing it on behalf 
+ * of the U.S. Government, the following notice is applicable:
+ *
+ * U.S. GOVERNMENT RIGHTS Programs, software, databases, and related documentation and technical data delivered to U.S. 
+ * Government customers are "commercial computer software" or "commercial technical data" pursuant to the applicable Federal
+ * Acquisition Regulation and agency-specific supplemental regulations. As such, the use, duplication, disclosure, 
+ * modification, and adaptation shall be subject to the restrictions and license terms set forth in the applicable Government 
+ * contract, and, to the extent applicable by the terms of the Government contract, the additional rights set forth in FAR 52.227-19, 
+ * Commercial Computer Software License (December 2007). GSPANN Technologies Inc., 362 Fairview Way, Milpitas, CA 95035, USA .
+ *
+ * This software is developed for general use in a variety of information management applications. It is not developed or 
+ * intended for use in any inherently dangerous applications, including applications which may create a risk of personal 
+ * injury. If you use this software in dangerous applications, then you shall be responsible to take all appropriate fail-safe,
+ * backup, redundancy, and other measures to ensure the safe use of this software. Gspann and its affiliates disclaim any liability
+ * for any damages caused by use of this software in dangerous applications.
+ *
+ * GSPANN is a registered trademark of GSPANN and/or its affiliates. Other names may be trademarks of their respective owners.
+ *
+ * This software and documentation may provide access to or information on content, products, and services from third parties.
+ * Gspann and its affiliates are not responsible for and expressly disclaim all warranties of any kind with respect to third-party 
+ * content, products, and services. Gspann and its affiliates will not be responsible for any loss, costs, or damages incurred due 
+ * to your access to or use of third-party content, products, or services.
+ -->
+
+<?import javafx.scene.web.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="beat.MainStageController">
+   <children>
+      <VBox fx:id="mainvbox" layoutX="59.0" layoutY="72.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="40.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#ffAddButtonAction" text="ADD FLAT FILE" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets bottom="3.0" left="10.0" right="3.0" top="3.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="adddb1" mnemonicParsing="false" onAction="#dbAddButtonAction" text="ADD DB" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#testcaseRunButtonAction" text="UPLOAD TEST PLAN " HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#etlStmFileUploadBtn" text="UPLOAD STM FILE" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </HBox.margin>
+                  </Button>
+                  <HBox alignment="CENTER_RIGHT" prefHeight="40.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Separator orientation="VERTICAL" prefHeight="200.0" HBox.hgrow="ALWAYS" />
+                        <ImageView fx:id="gspannCpyRight" fitHeight="66.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" style="-fx-background-color: red;" HBox.hgrow="ALWAYS">
+                           <image>
+                              <Image url="@../icon/Gspann_CopyRight.png" />
+                           </image>
+                           <viewport>
+                              <Rectangle2D />
+                           </viewport>
+                           <HBox.margin>
+                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                           </HBox.margin>
+                        </ImageView>
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <VBox maxWidth="300.0" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                          <tabs>
+                            <Tab fx:id="dbconntree" text="DB Connections">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #E8F8F5;">
+                                       <children>
+                                          <TreeView fx:id="dbtreeview" layoutX="50.0" layoutY="-24.0" prefHeight="151.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <contextMenu>
+                                                <ContextMenu fx:id="dbrghtclkmenu">
+                                                  <items>
+                                                    <MenuItem mnemonicParsing="false" onAction="#dbConnRefreshButtonAction" text="Refresh" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#dbaddSrcButtonAction" text="Add to Source" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#dbaddTrgButtonAction" text="Add to Target" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#dbConnEditButtonAction" text="Edit" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#dbConnDeltButtonAction" text="Delete" />
+                                                  </items>
+                                                </ContextMenu>
+                                             </contextMenu></TreeView>
+                                       </children></AnchorPane>
+                              </content>
+                                 <graphic>
+                                    <ImageView fx:id="dbloadinggif" fitHeight="19.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true" />
+                                 </graphic>
+                            </Tab>
+                            <Tab text="Flat File Connections">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #E9F7EF;">
+                                       <children>
+                                          <TreeView fx:id="flatfilelist" prefHeight="151.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <contextMenu>
+                                                <ContextMenu fx:id="ffrghtclkmenu">
+                                                  <items>
+                                                      <MenuItem mnemonicParsing="false" onAction="#ffConnRefreshButtonAction" text="Refresh" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#ffaddSrcButtonAction" text="Add to Source" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#ffaddTrgButtonAction" text="Add to Target" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#ffConnEditButtonAction" text="Edit" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#ffConnDeltButtonAction" text="Delete" />
+                                                  </items>
+                                                </ContextMenu>
+                                             </contextMenu></TreeView>
+                                       </children></AnchorPane>
+                              </content>
+                                 <graphic>
+                                    <ImageView fx:id="ffloadinggif" fitHeight="19.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true" />
+                                 </graphic>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
+                        <TabPane fx:id="testScenTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                          <tabs>
+                            <Tab fx:id="basicTestScenTab" style="-fx-background-color: #D4E6F1;" text="Standard Test Scenarios">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <VBox prefHeight="151.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <children>
+                                                <CheckBox fx:id="chktcnts" mnemonicParsing="false" selected="true" text="Total Counts" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chkncnts" mnemonicParsing="false" selected="true" text="Count of Nulls / Column" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chknncnts" mnemonicParsing="false" selected="true" text="Count of Not Nulls / Column" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chkdupcnts" mnemonicParsing="false" selected="true" text="Count of Duplicates / Column" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chkdstcnts" mnemonicParsing="false" selected="true" text="Count of Distinct / Column" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chksumnum" mnemonicParsing="false" selected="true" text="Sum of Numerics /Column" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chkmax" mnemonicParsing="false" selected="true" text="Max / Column" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chkmin" mnemonicParsing="false" selected="true" text="Min / Column" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                             </children>
+                                             <padding>
+                                                <Insets right="10.0" />
+                                             </padding>
+                                          </VBox>
+                                       </children>
+                                       <padding>
+                                          <Insets left="10.0" top="10.0" />
+                                       </padding>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                            <Tab fx:id="advanceTestScenTab" style="-fx-background-color: #85C1E9;" text="Data Validation Test Scenarios">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <VBox prefHeight="151.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <children>
+                                                <CheckBox fx:id="chkfst1000" mnemonicParsing="false" text="First 1000 Records" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chklst1000" mnemonicParsing="false" text="Last 1000 Records" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chkcmpltdata" mnemonicParsing="false" text="Complete Data" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chkincrdata" mnemonicParsing="false" text="Incremental Data" VBox.vgrow="ALWAYS">
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </VBox.margin>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </CheckBox>
+                                                <CheckBox fx:id="chkschtest" layoutX="15.0" layoutY="96.0" mnemonicParsing="false" text="Schedule Test" VBox.vgrow="ALWAYS">
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </VBox.margin>
+                                                </CheckBox>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                       <padding>
+                                          <Insets left="10.0" top="10.0" />
+                                       </padding>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #D4E6F1;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <HBox alignment="CENTER" maxHeight="30.0" prefHeight="162.0" prefWidth="269.0" style="-fx-background-color: #D4E6F1;" VBox.vgrow="ALWAYS">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <HBox alignment="CENTER" maxHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" text="Source" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <TextField fx:id="tfsrcconname" alignment="CENTER" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="10.0" right="10.0" />
+                                             </HBox.margin>
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </TextField>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <Separator orientation="VERTICAL" prefHeight="200.0" HBox.hgrow="ALWAYS" />
+                              <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <HBox alignment="CENTER" maxHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" text="Target" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="tftrgconname" alignment="CENTER" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="10.0" right="10.0" />
+                                             </HBox.margin>
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </TextField>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets left="5.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                           <VBox.margin>
+                              <Insets left="30.0" right="30.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <TabPane fx:id="tbpanemanautotest" prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                          <tabs>
+                              <Tab fx:id="tabautotesting" onSelectionChanged="#automatedTestTabAction" style="-fx-background-color: #F7DC6F;" text="Automated Testing">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="331.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <items>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                   <children>
+                                                      <TabPane fx:id="autosemifulltabpane" prefHeight="162.0" prefWidth="298.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <tabs>
+                                                            <Tab fx:id="semiautotab" style="-fx-background-color: #D98880;" text="SEMI">
+                                                               <content>
+                                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                     <children>
+                                                                        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                           <children>
+                                                                              <HBox alignment="CENTER" maxHeight="30.0" minHeight="30.0" style="-fx-background-color: #1C2833;" VBox.vgrow="ALWAYS">
+                                                                                 <children>
+                                                                                    <Label text="Tiltle" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conTitle_txt_field" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                    <Label text="Author" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conAut_txt_field" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                    <Label text="Version" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conVer_txt_field" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="10.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                 </children>
+                                                                              </HBox>
+                                                                              <TableView fx:id="transDataTbl" VBox.vgrow="ALWAYS">
+                                                                                <columns>
+                                                                                  <TableColumn fx:id="trgSchemaTblclm" prefWidth="75.0" text="Target Schema" />
+                                                                                  <TableColumn fx:id="trgTableTblclm" prefWidth="75.0" text="Target Table" />
+                                                                                    <TableColumn fx:id="trgColumnTblclm" prefWidth="75.0" text="Target Table Column" />
+                                                                                    <TableColumn fx:id="trgColumnSpecTblclm" prefWidth="75.0" text="Target Column Spec" />
+                                                                                    <TableColumn fx:id="trgColumnKeyTblclm" prefWidth="75.0" text="Target Column Key" />
+                                                                                    <TableColumn fx:id="srcColumnSpecTblclm" prefWidth="75.0" text="Source Column Spec" />
+                                                                                    <TableColumn fx:id="columnTransfTblclm" prefWidth="75.0" text="Source Column Transformation" />
+                                                                                </columns>
+                                                                                 <columnResizePolicy>
+                                                                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                 </columnResizePolicy>
+                                                                                 <contextMenu>
+                                                                                    <ContextMenu>
+                                                                                       <items>
+                                                                                          <MenuItem mnemonicParsing="false" text="Refresh" />
+                                                                                          <MenuItem fx:id="clrstmtblcontextmenuitem1" mnemonicParsing="false" onAction="#stmTblClear" text="Clear" />
+                                                                                       </items>
+                                                                                    </ContextMenu>
+                                                                                 </contextMenu>
+                                                                              </TableView>
+                                                                              <HBox alignment="CENTER" maxHeight="50.0" minHeight="50.0" style="-fx-background-color: #1C2833;">
+                                                                                 <children>
+                                                                                    <Label text="Common Join Rule" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextArea fx:id="commonRuletxtar" editable="false" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextArea>
+                                                                                    <Label layoutX="12.0" layoutY="27.0" text="Source Key Columns" textFill="WHITE" HBox.hgrow="ALWAYS" />
+                                                                                    <TextArea fx:id="sourceKeyColtxtar" editable="false" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextArea>
+                                                                                    <Label text="Target Key Columns" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextArea fx:id="targetKeyColtxtar" editable="false" layoutX="97.0" layoutY="12.0" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextArea>
+                                                                                 </children>
+                                                                              </HBox>
+                                                                           </children>
+                                                                        </VBox>
+                                                                     </children></AnchorPane>
+                                                               </content>
+                                                            </Tab>
+                                                            <Tab fx:id="fullautotab" style="-fx-background-color: #CD6155;" text="FULL">
+                                                               <content>
+                                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                                               </content>
+                                                            </Tab>
+                                                         </tabs>
+                                                      </TabPane>
+                                                   </children>
+                                                </AnchorPane>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                   <children>
+                                                      <VBox prefHeight="161.0" prefWidth="298.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <children>
+                                                            <ToolBar prefHeight="30.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                                               <items>
+                                                                  <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
+                                                                     <children>
+                                                                        <Button fx:id="autoresultrunbt" mnemonicParsing="false" onAction="#autoResultRunButtonAction" text="RUN" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets left="10.0" right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                        <Button fx:id="resultSavebtn" mnemonicParsing="false" onAction="#saveResultBtn" text="SAVE" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                        <Button fx:id="resultClearbtn" mnemonicParsing="false" onAction="#clearResultButton" text="CLEAR" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                        <ComboBox fx:id="testResultSelect" prefWidth="150.0" promptText="Choose Filter Type">
+                                                                           <HBox.margin>
+                                                                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                                                                           </HBox.margin>
+                                                                        </ComboBox>
+                                                                     </children>
+                                                                  </HBox>
+                                                               </items>
+                                                            </ToolBar>
+                                                            <TabPane fx:id="advanResultTabPane" prefHeight="200.0" prefWidth="200.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                                                              <tabs>
+                                                                <Tab fx:id="basicResultTab" style="-fx-background-color: #D4E6F1;" text="Standard">
+                                                                     <content>
+                                                                        <TabPane fx:id="tbpaneautoresult" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" tabClosingPolicy="UNAVAILABLE">
+                                                                           <tabs>
+                                                                              <Tab fx:id="tabrslttotalcnt" text="Total Counts">
+                                                                                 <content>
+                                                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="totalCounts_tbl_view" prefHeight="82.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="src_count_tbl_col" prefWidth="75.0" text="Source Count" />
+                                                                                                <TableColumn fx:id="trg_count_tbl_col" prefWidth="75.0" text="Target Count" />
+                                                                                                <TableColumn fx:id="result_count_tbl_col" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children></AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                              <Tab fx:id="tabrsltnullcol" text="Count of Nulls / Column">
+                                                                                 <content>
+                                                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="totalCounts_null_tbl_view" prefHeight="82.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="src_col_tbl_col" prefWidth="75.0" text="Source Column" />
+                                                                                                <TableColumn fx:id="src_col_count_tbl_col" prefWidth="75.0" text="Source Null Count" />
+                                                                                                <TableColumn fx:id="trg_col_tbl_col" prefWidth="75.0" text="Target Column" />
+                                                                                                <TableColumn fx:id="trg_col_count_tbl_col" prefWidth="75.0" text="Target Null Count" />
+                                                                                                <TableColumn fx:id="result_count_nulls_tbl_col" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children></AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                              <Tab fx:id="tabrsltnotnullcol" text="Count of Not Nulls / Column">
+                                                                                 <content>
+                                                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="totalCountsnot_null_tbl_view" prefHeight="82.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="cnt_null_src_col_tbl_col" prefWidth="75.0" text="Source Column" />
+                                                                                                <TableColumn fx:id="cnt_null_src_col_count_tbl_col" prefWidth="75.0" text="Source Not Null Count" />
+                                                                                                <TableColumn fx:id="cnt_null_trg_col_tbl_col" prefWidth="75.0" text="Target Column" />
+                                                                                                <TableColumn fx:id="cnt_null_trg_col_count_tbl_col" prefWidth="75.0" text="Target Not Null Count" />
+                                                                                                <TableColumn fx:id="cnt_null_result_count_nulls_tbl_col" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children></AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                              <Tab fx:id="tabrsltdupcol" text="Count of Duplicates / Column">
+                                                                                 <content>
+                                                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="countDupli_tbl_view" prefHeight="82.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="cnt_dup_src_col_tbl_col" prefWidth="75.0" text="Source Column" />
+                                                                                                <TableColumn fx:id="cnt_dup_src_col_count_tbl_col" prefWidth="75.0" text="Source Duplicates Count" />
+                                                                                                <TableColumn fx:id="cnt_dup_trg_col_tbl_col" prefWidth="75.0" text="Target Column" />
+                                                                                                <TableColumn fx:id="cnt_dup_trg_col_count_tbl_col" prefWidth="75.0" text="Target Duplicates  Count" />
+                                                                                                <TableColumn fx:id="cnt_dup_result_count_nulls_tbl_col" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children></AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                              <Tab fx:id="tabrsltdstcol" text="Count of Distinct / Column">
+                                                                                 <content>
+                                                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="countDistinct_tbl_view" prefHeight="82.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="cnt_dis_src_col_tbl_col" prefWidth="75.0" text="Source Column" />
+                                                                                                <TableColumn fx:id="cnt_dis_src_col_count_tbl_col" prefWidth="75.0" text="Source Distinct Count" />
+                                                                                                <TableColumn fx:id="cnt_dis_trg_col_tbl_col" prefWidth="75.0" text="Target Column" />
+                                                                                                <TableColumn fx:id="cnt_dis_trg_col_count_tbl_col" prefWidth="75.0" text="Target Distinct Count" />
+                                                                                                <TableColumn fx:id="cnt_dis_result_count_tbl_col" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children></AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                              <Tab fx:id="tabrsltsumcol" text="Count of Numerics / Column">
+                                                                                 <content>
+                                                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="countNumerics_tbl_view" prefHeight="82.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="cnt_num_src_col_tbl_col" prefWidth="75.0" text="Source Column" />
+                                                                                                <TableColumn fx:id="cnt_num_src_col_count_tbl_col" prefWidth="75.0" text="Source Numeric Count" />
+                                                                                                <TableColumn fx:id="cnt_num_trg_col_tbl_col" prefWidth="75.0" text="Target Column" />
+                                                                                                <TableColumn fx:id="cnt_num_trg_col_count_tbl_col" prefWidth="75.0" text="Target Numeric Count" />
+                                                                                                <TableColumn fx:id="cnt_num_result_count_tbl_col" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children></AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                              <Tab fx:id="tabrsltmaxcol" text="Max / Column">
+                                                                                 <content>
+                                                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="max_tbl_view" prefHeight="82.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="cnt_max_src_col_tbl_col" prefWidth="75.0" text="Source Column" />
+                                                                                                <TableColumn fx:id="cnt_max_src_col_count_tbl_col" prefWidth="75.0" text="Source Max Count" />
+                                                                                                <TableColumn fx:id="cnt_max_trg_col_tbl_col" prefWidth="75.0" text="Target Column" />
+                                                                                                <TableColumn fx:id="cnt_max_trg_col_count_tbl_col" prefWidth="75.0" text="Target Max Count" />
+                                                                                                <TableColumn fx:id="cnt_max_result_count_tbl_col" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children></AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                              <Tab fx:id="tabrsltmincol" text="Min / Column">
+                                                                                 <content>
+                                                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="min_tbl_view" prefHeight="82.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="cnt_min_src_col_tbl_col" prefWidth="75.0" text="Source Column" />
+                                                                                                <TableColumn fx:id="cnt_min_src_col_count_tbl_col" prefWidth="75.0" text="Source Min Count" />
+                                                                                                <TableColumn fx:id="cnt_min_trg_col_tbl_col" prefWidth="75.0" text="Target Column" />
+                                                                                                <TableColumn fx:id="cnt_min_trg_col_count_tbl_col" prefWidth="75.0" text="Target MinCount" />
+                                                                                                <TableColumn fx:id="cnt_min_result_count_tbl_col" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children></AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                           </tabs>
+                                                                        </TabPane>
+                                                                     </content>
+                                                                  </Tab>
+                                                                <Tab fx:id="advanResultTab" style="-fx-background-color: #85C1E9;" text="Data Validation">
+                                                                     <content>
+                                                                        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                                                                           <tabs>
+                                                                              <Tab text="Source Data">
+                                                                                 <content>
+                                                                                    <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="sourceData_tbl_view" prefHeight="84.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                                                       </children>
+                                                                                    </AnchorPane>
+                                                                                 </content></Tab>
+                                                                              <Tab text="Target Data">
+                                                                                 <content>
+                                                                                    <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="targetData_tbl_view" prefHeight="84.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                                                       </children>
+                                                                                    </AnchorPane>
+                                                                                 </content></Tab>
+                                                                              <Tab text="Un Matched Data">
+                                                                                 <content>
+                                                                                    <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                                                                                       <tabs>
+                                                                                          <Tab text="Source">
+                                                                                             <content>
+                                                                                                <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                                   <children>
+                                                                                                      <TableView fx:id="unMatchsourceData_tbl_view" prefHeight="55.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                                                                   </children>
+                                                                                                </AnchorPane>
+                                                                                             </content></Tab>
+                                                                                          <Tab text="Target">
+                                                                                             <content>
+                                                                                                <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                                   <children>
+                                                                                                      <TableView fx:id="unMatchtargetData_tbl_view" prefHeight="55.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                                                                   </children>
+                                                                                                </AnchorPane>
+                                                                                             </content></Tab>
+                                                                                       </tabs>
+                                                                                    </TabPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                              <Tab text="Summary">
+                                                                                 <content>
+                                                                                    <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="dataVdlsmry" prefHeight="80.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                            <columns>
+                                                                                              <TableColumn fx:id="vdlType" prefWidth="75.0" text="Validation Type" />
+                                                                                              <TableColumn fx:id="vdlsrcCnt" prefWidth="75.0" text="Source Count" />
+                                                                                                <TableColumn fx:id="vdltrgCnt" prefWidth="75.0" text="Target Count" />
+                                                                                                <TableColumn fx:id="vdlResult" prefWidth="75.0" text="Result" />
+                                                                                            </columns>
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                          </TableView>
+                                                                                       </children>
+                                                                                    </AnchorPane>
+                                                                                 </content></Tab>
+                                                                           </tabs>
+                                                                        </TabPane>
+                                                                     </content>
+                                                                  </Tab>
+                                                              </tabs>
+                                                            </TabPane>
+                                                         </children>
+                                                      </VBox>
+                                                   </children>
+                                                </AnchorPane>
+                                             </items>
+                                          </SplitPane>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                            <Tab fx:id="tabmantesting" onSelectionChanged="#manualTestTabAction" style="-fx-background-color: #58D68D;" text="Manual Testing">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="331.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <items>
+                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                   <children>
+                                                      <HBox alignment="CENTER" maxHeight="50.0" prefHeight="162.0" prefWidth="298.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <children>
+                                                            <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                                               <children>
+                                                                  <TextArea fx:id="manualjtasrcquery" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                                                     <VBox.margin>
+                                                                        <Insets left="15.0" right="10.0" />
+                                                                     </VBox.margin>
+                                                                  </TextArea>
+                                                               </children>
+                                                               <HBox.margin>
+                                                                  <Insets left="-10.0" />
+                                                               </HBox.margin>
+                                                            </VBox>
+                                                            <Separator orientation="VERTICAL" prefHeight="200.0" HBox.hgrow="ALWAYS" />
+                                                            <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                                               <children>
+                                                                  <TextArea fx:id="manualjtatrgquery" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                                                     <VBox.margin>
+                                                                        <Insets left="5.0" right="-10.0" />
+                                                                     </VBox.margin>
+                                                                  </TextArea>
+                                                               </children>
+                                                               <HBox.margin>
+                                                                  <Insets right="20.0" />
+                                                               </HBox.margin>
+                                                            </VBox>
+                                                         </children>
+                                                      </HBox>
+                                                   </children>
+                                                </AnchorPane>
+                                              <AnchorPane maxHeight="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="300.0" prefWidth="160.0">
+                                                   <children>
+                                                      <HBox prefHeight="161.0" prefWidth="298.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                      <HBox prefHeight="161.0" prefWidth="298.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <children>
+                                                            <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                                               <children>
+                                                                  <ToolBar prefHeight="40.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                                                     <items>
+                                                                        <CheckBox fx:id="srcExec" mnemonicParsing="false" selected="true" text="Source" />
+                                                                        <CheckBox fx:id="trgExec" mnemonicParsing="false" selected="true" text="Target" />
+                                                                        <Button fx:id="manualRun" mnemonicParsing="false" onAction="#manualRunButtonAction" text="RUN" />
+                                                                        <Button fx:id="manualSave" layoutX="174.0" layoutY="20.0" mnemonicParsing="false" onAction="#manualSaveButton" text="SAVE" />
+                                                                        <Button fx:id="manualClear" layoutX="184.0" layoutY="30.0" mnemonicParsing="false" onAction="#manualClearButtonAction" text="CLEAR" />
+                                                                     </items>
+                                                                  </ToolBar>
+                                                                  <TabPane fx:id="manualResultTabpane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                                                                     <tabs>
+                                                                        <Tab fx:id="manualsrcdttab" text="Source Data">
+                                                                           <content>
+                                                                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                 <children>
+                                                                                    <TableView fx:id="manualsrctabview" editable="true" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                                                 </children>
+                                                                              </AnchorPane>
+                                                                           </content></Tab>
+                                                                        <Tab fx:id="manualtrgdttab" text="Target Data">
+                                                                           <content>
+                                                                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                 <children>
+                                                                                    <TableView fx:id="manualtrgtabview" editable="true" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                                                 </children>
+                                                                              </AnchorPane>
+                                                                           </content></Tab>
+                                                                        <Tab fx:id="manualunmatcheddttab" text="Un Matched Data">
+                                                                           <content>
+                                                                              <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                                                                                 <tabs>
+                                                                                    <Tab text="Source">
+                                                                                       <content>
+                                                                                          <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                             <children>
+                                                                                                <TableView fx:id="manualunmatchedsrctabview" editable="true" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                                                             </children>
+                                                                                          </AnchorPane>
+                                                                                       </content></Tab>
+                                                                                    <Tab text="Target">
+                                                                                       <content>
+                                                                                          <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                             <children>
+                                                                                                <TableView fx:id="manualunmatchedtrgtabview" editable="true" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                                                             </children>
+                                                                                          </AnchorPane>
+                                                                                       </content></Tab>
+                                                                                 </tabs>
+                                                                              </TabPane>
+                                                                           </content>
+                                                                        </Tab>
+                                                                        <Tab fx:id="manualResultSummaryTab" text="Summary">
+                                                                           <content>
+                                                                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                 <children>
+                                                                                    <TableView fx:id="manualviewsummarytable" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                       <columnResizePolicy>
+                                                                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                       </columnResizePolicy>
+                                                                                       <columns>
+                                                                                          <TableColumn fx:id="viewsummarytbltcid" prefWidth="75.0" text="TestCaseID" />
+                                                                                          <TableColumn fx:id="viewsummarytblrslt" prefWidth="75.0" text="Result" />
+                                                                                       </columns>
+                                                                                    </TableView>
+                                                                                 </children>
+                                                                              </AnchorPane>
+                                                                           </content></Tab>
+                                                                     </tabs>
+                                                                  </TabPane>
+                                                               </children>
+                                                            </VBox>
+                                                         </children>
+                                                      </HBox>
+                                                   </children>
+                                                </AnchorPane>
+                                            </items>
+                                          </SplitPane>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <ToolBar layoutX="10.0" layoutY="10.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+               <items>
+                  <ImageView fx:id="proggif_image" fitHeight="20.0" fitWidth="92.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="/icon/progcmpleted.gif" />
+                     </image>
+                  </ImageView>
+                  <Separator orientation="VERTICAL" />
+                  <Label fx:id="progstatus_label" alignment="CENTER_RIGHT" contentDisplay="RIGHT" maxWidth="250.0" prefWidth="250.0" text="Lets get Started" textFill="#180468">
+                     <font>
+                        <Font name="System Italic" size="12.0" />
+                     </font>
+                  </Label>
+                  <Label text="Progress Status : ">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Label>
+                  <Separator layoutX="31.0" layoutY="10.0" orientation="VERTICAL" />
+               </items>
+            </ToolBar>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
