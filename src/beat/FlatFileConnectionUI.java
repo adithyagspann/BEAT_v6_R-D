@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,16 +28,28 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+import parser.XMLParser;
 import remoteutility.FTPEngine;
 
 /**
@@ -44,6 +58,7 @@ import remoteutility.FTPEngine;
  */
 public class FlatFileConnectionUI {
 
+    private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
     private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FlatFileConnectionUI.class);
 // Create the custom dialog.
     private Dialog<Pair<String, String>> dialog;
@@ -65,6 +80,21 @@ public class FlatFileConnectionUI {
     File file, fremote;
     private ComboBox hostType;
     private FTPEngine ftpEngine;
+    private Button metaProSet;
+    private Dialog<Pair<String, String>> metaDataDialog;
+    private Button addColumn;
+    private ButtonType metaDataButton;
+    private Button delColumn;
+    private GridPane metaDataGrid;
+    private TableView tableView;
+    private TextField columnNameTF;
+    private ComboBox columnTypeCmb;
+    private TextField columnSizeTF;
+    private TextField fileExtn;
+    private ComboBox<Object> seperator;
+    private TextField otherSep;
+    private Label otherLabel;
+    private ObservableList<FFColMetaData> csvMeta;
 
     public List<String> readFF(String connPath) throws FileNotFoundException, IOException {
         LOGGER.info("Reading the Flat File data : " + connPath);
@@ -107,6 +137,7 @@ public class FlatFileConnectionUI {
             // Create the username and password labels and fields.
             GridPane grid = new GridPane();
             grid.setHgap(5);
+
             grid.setVgap(5);
             grid.setPadding(new Insets(20, 10, 10, 10));
 
@@ -135,15 +166,19 @@ public class FlatFileConnectionUI {
             jarpath.setDisable(true);
             filetypecmb = new ComboBox();
             filetypecmb.setPromptText("Choose File Type");
+//            filetypecmb.setDisable(true);
             ObservableList ftypelist = FXCollections.observableArrayList();
-            ftypelist.add("TXT");
+//            ftypelist.add("TXT");
             ftypelist.add("CSV");
-            ftypelist.add("XLS");
-            ftypelist.add("XLSX");
+
+//            ftypelist.add("XLS");
+//            ftypelist.add("XLSX");
             ftypelist.add("JSON");
             ftypelist.add("XML");
+            ftypelist.add("Others");
             filetypecmb.setItems((ObservableList) ftypelist);
-
+            metaProSet = new Button("Set MetaData");
+            metaProSet.setDisable(true);
             grid.add(new Label("Choose:"), 0, 0);
             grid.add(remotefilecb, 1, 0);
             grid.add(localfilebt, 2, 0);
@@ -155,13 +190,17 @@ public class FlatFileConnectionUI {
             grid.add(username, 1, 3, 2, 1);
             grid.add(new Label("Password:"), 0, 4);
             grid.add(password, 1, 4, 2, 1);
-            grid.add(new Label("Choose File type:"), 0, 5);
+            grid.add(new Label("Choose File type: "), 0, 5);
             grid.add(filetypecmb, 1, 5, 2, 1);
-            grid.add(new Label("Remote Path:"), 0, 6);
-            grid.add(jarpath, 1, 6, 2, 1);
+            setTableMeta("");
+//            metaDataGrid.setVisible(false);
+//            gridCmb.add(metaDataGrid, 1, 0);
+            grid.add(metaDataGrid, 1, 6, 2, 1);
+            grid.add(new Label("Remote Path:"), 0, 7);
+            grid.add(jarpath, 1, 7, 2, 1);
             msglabel = new Label("Message: Please Test to enable Add button");
-            grid.add(msglabel, 0, 7, 2, 1);
-            grid.add(test, 2, 7);
+            grid.add(msglabel, 0, 8, 2, 1);
+            grid.add(test, 2, 8);
 
             // Enable/Disable login button depending on whether a username was entered.
             Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
@@ -171,10 +210,29 @@ public class FlatFileConnectionUI {
                 LOGGER.info("Loading existing FF " + connName + " for modifications");
                 List<String> connData = readFF("files/" + connName.substring(connName.lastIndexOf(".") + 1, connName.length()) + "/" + connName);
 
+                switch (connData.get(0).toLowerCase()) {
+                    case "local":
+                        if (connData.size() == 2) {
+                            jarpath.setText(connData.get(1));
+                            filetypecmb.setValue(connName.substring(connName.lastIndexOf(".") + 1, connName.length()).toUpperCase());
+                            jarpath.setDisable(false);
+                        } else {
+                            jarpath.setText(connData.get(1));
+                            filetypecmb.setValue(connName.substring(connName.lastIndexOf(".") + 1, connName.length()).toUpperCase());
+
+                            jarpath.setDisable(false);
+                        }
+                        break;
+                    case "remote":
+                        break;
+                }
+
                 if (connData.size() == 2) {
                     jarpath.setText(connData.get(1));
                     filetypecmb.setValue(connName.substring(connName.lastIndexOf(".") + 1, connName.length()).toUpperCase());
                     jarpath.setDisable(false);
+                } else if (connData.size() == 3) {
+
                 } else {
                     remotefilecb.setSelected(true);
                     hosturl.setText(connData.get(2));
@@ -190,19 +248,25 @@ public class FlatFileConnectionUI {
                     jarpath.setDisable(false);
                 }
                 test.setDisable(false);
-
-            } else {
-                LOGGER.info("Creating new FF ");
-                filetypecmb.valueProperty().addListener((observable, oldValue, newValue) -> {
-
-                    if ((filetypecmb.getValue().toString().equals("TXT") || filetypecmb.getValue().toString().equals("CSV") || filetypecmb.getValue().toString().equals("JSON") || filetypecmb.getValue().toString().equals("XLSX") || filetypecmb.getValue().toString().equals("XML") || filetypecmb.getValue().toString().equals("XLS"))) {
-                        test.setDisable(false);
-                    } else {
-                        test.setDisable(true);
-                    }
-
-                });
             }
+//            else {
+//                LOGGER.info("Creating new FF ");
+//                filetypecmb.valueProperty().addListener((observable, oldValue, newValue) -> {
+//                    
+//                    if (filetypecmb.getValue().toString().equals("CSV")) {
+//                        test.setDisable(false);
+//                    } else {
+//                        metaProSet.setDisable(false);
+//                        setTableMeta();
+//                    }
+//
+////                    if ((filetypecmb.getValue().toString().equals("TXT") || filetypecmb.getValue().toString().equals("CSV") || filetypecmb.getValue().toString().equals("JSON") || filetypecmb.getValue().toString().equals("XLSX") || filetypecmb.getValue().toString().equals("XML") || filetypecmb.getValue().toString().equals("XLS"))) {
+////                        test.setDisable(false);
+////                    } else {
+////                        test.setDisable(true);
+////                    }
+//                });
+//            }
             // Do some validation (using the Java 8 lambda syntax).
             remotefilecb.selectedProperty().addListener((observable, oldValue, newValue) -> {
 
@@ -284,7 +348,10 @@ public class FlatFileConnectionUI {
                 }
 
             });
-
+            metaProSet.setOnAction((ActionEvent event) -> {
+                LOGGER.info("Processing to set meta properties");
+                setTableMeta(filetypecmb.getValue().toString());
+            });
             //test file connection
             test.setOnAction((ActionEvent event) -> {
                 LOGGER.info("Testing the Loaded file using File type");
@@ -302,14 +369,29 @@ public class FlatFileConnectionUI {
                         if (file == null) {
                             file = new File(jarpath.getText());
                         }
+                        String ext = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("."), file.getAbsolutePath().length());
+//                        if (file.isFile() && (file.getAbsolutePath().toLowerCase().contains(filetypecmb.getValue().toString().toLowerCase()) || file.getAbsolutePath().toLowerCase().contains(fileExtn.getText().toLowerCase()))) {
+                        if (file.isFile() && (ext.equalsIgnoreCase(filetypecmb.getValue().toString().toLowerCase()) || ext.equalsIgnoreCase(fileExtn.getText().toLowerCase()))) {
+                            boolean dataCheck = false;
+                            if (filetypecmb.getValue().toString().equalsIgnoreCase("csv")) {
+                                dataCheck = true;
+                            } else {
+                                if (!tableView.getItems().isEmpty()) {
+                                    dataCheck = true;
+                                }
+                            }
 
-                        if (file.isFile() && file.getAbsolutePath().contains(filetypecmb.getValue().toString())) {
                             LOGGER.info("File has been verified with file type successfully");
-
-                            msglabel.setStyle("-fx-text-fill: green");
-                            msglabel.setTooltip(new Tooltip(file.getAbsolutePath()));
-                            msglabel.setText("Message: Format Matched ..." + file.getName());
-                            loginButton.setDisable(false);
+                            if (dataCheck) {
+                                msglabel.setStyle("-fx-text-fill: green");
+                                msglabel.setTooltip(new Tooltip(file.getAbsolutePath()));
+                                msglabel.setText("Message: Format Matched ..." + file.getName());
+                                loginButton.setDisable(false);
+                            } else {
+                                LOGGER.info("File has failed while verifing with file type ");
+                                msglabel.setStyle("-fx-text-fill: red");
+                                msglabel.setText("Message: Unmatched File Format");
+                            }
                         } else {
                             LOGGER.info("File has failed while verifing with file type ");
                             msglabel.setStyle("-fx-text-fill: red");
@@ -325,11 +407,23 @@ public class FlatFileConnectionUI {
 
             filetypecmb.valueProperty().addListener((observable, oldValue, newValue) -> {
 
-                if ((filetypecmb.getValue().toString().equals("TXT") || filetypecmb.getValue().toString().equals("CSV") || filetypecmb.getValue().toString().equals("JSON") || filetypecmb.getValue().toString().equals("XLSX") || filetypecmb.getValue().toString().equals("XML") || filetypecmb.getValue().toString().equals("XLS"))) {
+                if (filetypecmb.getValue().toString().equalsIgnoreCase("CSV")) {
                     test.setDisable(false);
+
+                    metaDataGrid.setDisable(true);
+                } else if (filetypecmb.getValue().toString().equalsIgnoreCase("XML") || filetypecmb.getValue().toString().equalsIgnoreCase("JSON")) {
+                    metaDataGrid.setDisable(true);
                 } else {
-                    test.setDisable(true);
+                    test.setDisable(false);
+
+                    metaDataGrid.setDisable(false);
+
                 }
+//                if ((filetypecmb.getValue().toString().equals("TXT") || filetypecmb.getValue().toString().equals("CSV") || filetypecmb.getValue().toString().equals("JSON") || filetypecmb.getValue().toString().equals("XLSX") || filetypecmb.getValue().toString().equals("XML") || filetypecmb.getValue().toString().equals("XLS"))) {
+//                    test.setDisable(false);
+//                } else {
+//                    test.setDisable(true);
+//                }
 
             });
 
@@ -345,22 +439,46 @@ public class FlatFileConnectionUI {
 
             result.ifPresent(dbconstring -> {
                 System.out.println("Clicked - Add Button");
+                String schemaFile = "";
+                try {
+                    if (!filetypecmb.getValue().toString().equalsIgnoreCase("csv")) {
+                        if (remotefilecb.isSelected()) {
 
-                if (remotefilecb.isSelected()) {
+                            File rfile = new File(jarpath.getText());
+                            schemaFile = storeMetaData(rfile.getName());
 
-                    File rfile = new File(jarpath.getText());
-                    LOGGER.info("Storing/Updating Remote Flat File: " + rfile.getAbsolutePath());
-                    new SaveFF(rfile.getName(), hostType.getSelectionModel().getSelectedItem().toString(), hosturl.getText(), username.getText(), password.getText(), jarpath.getText(), filetypecmb.getValue().toString(), lctv);
+                        } else {
+                            schemaFile = storeMetaData(file.getName());
+                        }
+                    }
 
-                } else {
-                    System.out.println("File Name: " + file.getAbsolutePath());
-                    LOGGER.info("Storing/Updating Local Flat File: " + file.getAbsolutePath());
-                    new SaveFF(file.getName(), file.getAbsolutePath().replace("\\", "/"), filetypecmb.getValue().toString(), lctv);
+                    String fileType = "";
+                    if (filetypecmb.getValue().toString().equalsIgnoreCase("csv")) {
+                        fileType = filetypecmb.getValue().toString();
+                    } else if (filetypecmb.getValue().toString().equalsIgnoreCase("xml") || filetypecmb.getValue().toString().equalsIgnoreCase("json")) {
+
+                    } else {
+                        fileType = fileExtn.getText().replace(".", "");
+                    }
+
+                    if (remotefilecb.isSelected()) {
+
+                        File rfile = new File(jarpath.getText());
+                        LOGGER.info("Storing/Updating Remote Flat File: " + rfile.getAbsolutePath());
+                        new SaveFF(rfile.getName(), hostType.getSelectionModel().getSelectedItem().toString(), hosturl.getText(), username.getText(), password.getText(), jarpath.getText(), fileType, schemaFile, lctv);
+
+                    } else {
+                        System.out.println("File Name: " + file.getAbsolutePath());
+                        LOGGER.info("Storing/Updating Local Flat File: " + file.getAbsolutePath());
+                        new SaveFF(file.getName(), file.getAbsolutePath().replace("\\", "/"), fileType, schemaFile, lctv);
+                    }
+                } catch (ParserConfigurationException | SAXException | TransformerException | IOException ex) {
+                    Logger.getLogger(FlatFileConnectionUI.class.getName()).log(Level.SEVERE, null, ex);
+                    new ExceptionUI(ex);
                 }
-
             });
         } catch (IOException ex) {
-            Logger.getLogger(FlatFileConnectionUI.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(FlatFileConnectionUI.class.getName()).log(Level.SEVERE, null, ex);
             LOGGER.info(ex.toString());
             new ExceptionUI(ex);
         }
@@ -439,4 +557,369 @@ public class FlatFileConnectionUI {
         return remoteTypes;
     }
 
+    public void setTableMeta(String extType) {
+//        metaDataDialog = new Dialog<>();
+//        metaDataDialog.setTitle("Flat File Metdata");
+//        metaDataDialog.setHeaderText("Add the Flat File Metadata");
+//
+//        // Get the Stage.
+//        Stage stage = (Stage) metaDataDialog.getDialogPane().getScene().getWindow();
+//
+//        // Add a custom icon.
+////        stage.getIcons().add(new Image(this.getClass().getResource("/icon/filesicon.png").toString()));
+//        metaDataButton = new ButtonType("ADD", ButtonBar.ButtonData.OK_DONE);
+//
+//        metaDataDialog.getDialogPane().getButtonTypes().addAll(metaDataButton, ButtonType.CANCEL);
+//
+//        // Set the icon (must be included in the project).
+//        metaDataDialog.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icon/filesicon.png"))));
+        metaDataGrid = new GridPane();
+        metaDataGrid.setHgap(5);
+        metaDataGrid.setVgap(5);
+        metaDataGrid.setPadding(new Insets(20, 10, 10, 10));
+        metaDataGrid.setDisable(true);
+        //Table to store the Columns Metadata
+        tableView = new TableView();
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableView.setPrefHeight(150);
+        tableView.setPrefWidth(400);
+        TableColumn columnName = new TableColumn("Column Name");
+//        columnName.setPrefWidth(120);
+        TableColumn columnType = new TableColumn("Column Type");
+//        columnType.setPrefWidth(120);
+        TableColumn columnSize = new TableColumn("Column Size");
+//        columnSize.setPrefWidth(120);
+
+        columnName.setCellValueFactory(new PropertyValueFactory<>("columnName"));
+        columnType.setCellValueFactory(new PropertyValueFactory<>("colType"));
+        columnSize.setCellValueFactory(new PropertyValueFactory<>("colSize"));
+
+        tableView.getColumns().addAll(columnName, columnType, columnSize);
+
+        csvMeta = FXCollections.observableArrayList();
+
+        tableView.setItems(csvMeta);
+
+        columnNameTF = new TextField();
+        columnNameTF.setPromptText("Column Name");
+        columnTypeCmb = new ComboBox();
+        columnTypeCmb.setPromptText("Choose Data type");
+
+        ObservableList<String> colTypeList = FXCollections.observableArrayList();
+        colTypeList.add("Integer");
+        colTypeList.add("Long");
+        colTypeList.add("Float");
+        colTypeList.add("Double");
+        colTypeList.add("BigDecimal");
+        colTypeList.add("String");
+        colTypeList.add("Date");
+
+        colTypeList.add("Time");
+        colTypeList.add("Boolean");
+        columnTypeCmb.getItems().addAll(colTypeList);
+        columnSizeTF = new TextField();
+        columnSizeTF.setPromptText("Column Size");
+        columnNameTF.setDisable(true);
+        columnTypeCmb.setDisable(true);
+        columnSizeTF.setDisable(true);
+        otherSep = new TextField();
+        otherSep.setPromptText("Enter the Column Seperator");
+//        otherSep.setDisable(true);
+        otherSep.setVisible(false);
+
+        addColumn = new Button("Add");
+        delColumn = new Button("Remove");
+        fileExtn = new TextField();
+        fileExtn.setPromptText("Enter file extn eg: .txt");
+//        fileExtn.setDisable(true);
+        seperator = new ComboBox<>();
+        seperator.setDisable(true);
+
+        ObservableList<String> seperatorCmb = FXCollections.observableArrayList();
+        seperatorCmb.add(",");
+        seperatorCmb.add("|");
+        seperatorCmb.add("Fixed");
+        seperatorCmb.add("Others");
+        seperator.getItems().addAll(seperatorCmb);
+
+        seperator.setPromptText("Choose Column Seperator");
+//        tableView.setDisable(true);
+//        columnNameTF.setDisable(true);
+//        columnSizeTF.setDisable(true);
+//        columnTypeCmb.setDisable(true);
+        metaDataGrid.add(new Label("File Extension"), 0, 0);
+        metaDataGrid.add(fileExtn, 1, 0);
+        metaDataGrid.add(new Label("Column Seperator"), 0, 1);
+        metaDataGrid.add(seperator, 1, 1);
+        otherLabel = new Label("Others");
+        otherLabel.setVisible(false);
+//        metaDataGrid.add(otherLabel, 2, 1);
+        metaDataGrid.add(otherSep, 2, 1);
+        metaDataGrid.add(tableView, 0, 2, 3, 1);
+        metaDataGrid.add(new Label("Column Name"), 0, 3);
+        metaDataGrid.add(columnNameTF, 1, 3);
+        metaDataGrid.add(new Label("Column Type"), 0, 4);
+        metaDataGrid.add(columnTypeCmb, 1, 4);
+        metaDataGrid.add(new Label("Column Size"), 0, 5);
+        metaDataGrid.add(columnSizeTF, 1, 5);
+//        metaDataGrid.add
+        metaDataGrid.add(addColumn, 0, 6);
+        metaDataGrid.add(delColumn, 1, 6);
+
+        //Seperator Combo Action
+        seperator.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (seperator.getValue().toString().equalsIgnoreCase("others")) {
+                otherSep.setVisible(true);
+                otherLabel.setVisible(true);
+                columnNameTF.setDisable(true);
+                columnTypeCmb.setDisable(true);
+                columnSizeTF.setDisable(true);
+                columnSizeTF.clear();
+            } else if (seperator.getValue().toString().equalsIgnoreCase("fixed")) {
+                otherSep.setVisible(false);
+                otherSep.clear();
+                otherLabel.setVisible(false);
+                columnNameTF.setDisable(false);
+                columnTypeCmb.setDisable(false);
+                columnSizeTF.setDisable(false);
+            } else {
+                otherSep.setVisible(false);
+                otherSep.clear();
+                otherLabel.setVisible(false);
+                columnNameTF.setDisable(false);
+                columnTypeCmb.setDisable(false);
+                columnSizeTF.setDisable(true);
+                columnSizeTF.clear();
+            }
+
+        });
+
+        //Action on file extension
+        fileExtn.textProperty().addListener((observable, oldValue, newValue) -> {
+
+            if (!fileExtn.getText().trim().isEmpty()) {
+                seperator.setDisable(false);
+            } else {
+                seperator.setDisable(true);
+            }
+        });
+
+        otherSep.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!otherSep.getText().isEmpty()) {
+                columnNameTF.setDisable(false);
+                columnTypeCmb.setDisable(false);
+                columnSizeTF.setDisable(true);
+            } else {
+                columnNameTF.setDisable(true);
+                columnTypeCmb.setDisable(true);
+                columnSizeTF.setDisable(true);
+            }
+        });
+        //Adding new Column
+        addColumn.setOnAction((ActionEvent event) -> {
+            System.out.println("Adding Column");
+            if (seperator.getValue().toString().equalsIgnoreCase("fixed")) {
+                if (!columnNameTF.getText().isEmpty() && columnTypeCmb != null && !columnSizeTF.getText().isEmpty()) {
+                    boolean dataNotExist = checkColumnExistence();
+
+                    for (int i = 0; i < csvMeta.size(); i++) {
+                        System.out.println(csvMeta.get(i).getColumnName() + "#" + csvMeta.get(i).getColType() + "#" + csvMeta.get(i).getColSize());
+                    }
+                    if (dataNotExist) {
+                        FFColMetaData metaData = new FFColMetaData(columnNameTF.getText(), columnTypeCmb.getValue().toString(), columnSizeTF.getText());
+                        csvMeta.add(metaData);
+                    }
+                } else {
+                    int i = 0;
+                    StringBuilder builder = new StringBuilder();
+                    if (columnNameTF.getText().isEmpty()) {
+                        builder.append(++i).append(". Column Name Cannot be empty");
+                    }
+                    if (columnTypeCmb.getValue().toString().isEmpty()) {
+                        builder.append(++i).append(". Column Type Cannot be empty");
+                    }
+                    if (columnSizeTF.getText().isEmpty()) {
+                        builder.append(++i).append(". Column Size Cannot be empty");
+                    }
+                    new ExceptionUI(new Exception(builder.toString()));
+                }
+            } else {
+                System.out.println("Getting Delimited");
+                if (!columnNameTF.getText().isEmpty() && !columnTypeCmb.getValue().toString().isEmpty()) {
+                    boolean dataNotExist = checkColumnExistence();
+
+                    if (dataNotExist) {
+                        FFColMetaData metaData = new FFColMetaData(columnNameTF.getText(), columnTypeCmb.getValue().toString(), columnSizeTF.getText());
+
+                        csvMeta.add(metaData);
+                    }
+                } else {
+                    int i = 0;
+                    StringBuilder builder = new StringBuilder();
+                    if (columnNameTF.getText().isEmpty()) {
+                        builder.append(++i).append(". Column Name Cannot be empty");
+                    }
+                    if (columnTypeCmb.getValue().toString().isEmpty()) {
+                        builder.append(++i).append(". Column Type Cannot be empty");
+                    }
+
+                    new ExceptionUI(new Exception(builder.toString()));
+                }
+            }
+        });
+
+        delColumn.setOnAction((ActionEvent event) -> {
+            FFColMetaData p = (FFColMetaData) tableView.getSelectionModel().getSelectedItem();
+            csvMeta.remove(p);
+        });
+
+        //Drag & Drop on Table View
+        tableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                FFColMetaData colMeta = (FFColMetaData) newValue;
+
+                if (colMeta != null) {
+                    columnNameTF.setText(colMeta.getColumnName());
+                    columnTypeCmb.setValue(colMeta.getColType());
+                    columnSizeTF.setText(colMeta.getColSize());
+                }
+            }
+        });
+        tableView.setRowFactory(tv -> {
+            TableRow<FFColMetaData> row = new TableRow<>();
+
+            row.setOnDragDetected(event -> {
+                if (!row.isEmpty()) {
+                    Integer index = row.getIndex();
+                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
+                    db.setDragView(row.snapshot(null, null));
+                    ClipboardContent cc = new ClipboardContent();
+                    cc.put(SERIALIZED_MIME_TYPE, index);
+                    db.setContent(cc);
+                    event.consume();
+                }
+            });
+
+            row.setOnDragOver(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                    if (row.getIndex() != ((Integer) db.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
+                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                        event.consume();
+                    }
+                }
+            });
+
+            row.setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                    int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+//                    TableViewDragRows.Person draggedPerson = tableView.getItems().remove(draggedIndex);
+                    FFColMetaData draggedPerson = (FFColMetaData) tableView.getItems().remove(draggedIndex);
+
+                    int dropIndex;
+
+                    if (row.isEmpty()) {
+                        dropIndex = tableView.getItems().size();
+                    } else {
+                        dropIndex = row.getIndex();
+                    }
+
+                    tableView.getItems().add(dropIndex, draggedPerson);
+
+                    event.setDropCompleted(true);
+                    tableView.getSelectionModel().select(dropIndex);
+                    event.consume();
+                }
+            });
+
+            return row;
+        });
+
+//        metaDataDialog.getDialogPane().setContent(metaDataGrid);
+//
+//        metaDataDialog.setResultConverter(dialogButton -> {
+//            if (dialogButton == metaDataButton) {
+//                return new Pair<>("", "");
+//            }
+//            return null;
+//        });
+//
+//        Optional<Pair<String, String>> result = metaDataDialog.showAndWait();
+//
+//        result.ifPresent(dbconstring -> {
+//            System.out.println("Clicked - Add Button");
+//
+//        });
+    }
+
+    private boolean checkColumnExistence() {
+        boolean dataNotExist = true;
+        for (int i = 0; i < csvMeta.size(); i++) {
+            if (csvMeta.get(i).getColumnName().equalsIgnoreCase(columnNameTF.getText())) {
+                LOGGER.info("Updating the existing Column");
+                FFColMetaData metaData = csvMeta.get(i);
+                metaData.setColSize(columnSizeTF.getText());
+
+                metaData.setColType(columnTypeCmb.getValue().toString());
+                metaData.setColumnName(columnNameTF.getText());
+                csvMeta.remove(i);
+                csvMeta.add(i, metaData);
+                dataNotExist = false;
+                break;
+            }
+        }
+        return dataNotExist;
+    }
+
+    private String storeMetaData(String fileName) throws ParserConfigurationException, SAXException, TransformerException, IOException {
+        List<List<String>> metaAttrStore = new ArrayList<>();
+        List<String> tableMetaAttrStore = new ArrayList<>();
+        StringBuffer tableMetaAttr = new StringBuffer();
+        tableMetaAttr.append("'name'").append("#").append("'").append(fileName).append("'").append("\n");
+        tableMetaAttrStore.add(tableMetaAttr.toString());
+        tableMetaAttr = new StringBuffer();
+        tableMetaAttr.append("'separator'").append("#").append("'").append(seperator.equals("others") ? otherSep.getText() : seperator.getValue().toString().toLowerCase()).append("'").append("\n");
+        tableMetaAttrStore.add(tableMetaAttr.toString());
+        tableMetaAttr = new StringBuffer();
+        tableMetaAttr.append("'suppressHeaders'").append("#").append("'true'");
+        tableMetaAttrStore.add(tableMetaAttr.toString());
+        metaAttrStore.add(tableMetaAttrStore);
+        List<String> tableColMeta = new ArrayList<>();
+        int size = 0;
+        int prevIndex = 0;
+        for (int i = 0; i < tableView.getItems().size(); i++) {
+            FFColMetaData metaData = (FFColMetaData) tableView.getItems().get(i);
+            if (metaData.getColSize().isEmpty()) {
+                tableColMeta.add(tableView.getItems().get(i).toString());
+            } else {
+
+                size += Integer.parseInt(metaData.getColSize());
+                if (i == 0) {
+                    metaData.setBegin(1);
+                    metaData.setEnd(Integer.parseInt(metaData.getColSize()));
+                } else if (i == tableView.getItems().size() - 1) {
+
+                    metaData.setBegin(prevIndex + 1);
+                    metaData.setEnd(size);
+                } else {
+                    metaData.setBegin(prevIndex + 1);
+                    metaData.setEnd(size + (Integer.parseInt(metaData.getColSize())));
+                }
+                prevIndex = Integer.parseInt(metaData.getColSize());
+                System.out.println("Data Begin: " + metaData.getBegin() + ": end: " + metaData.getEnd());
+                tableColMeta.add(metaData.getFixedLenMeta());
+            }
+
+        }
+        metaAttrStore.add(tableColMeta);
+        if (!metaAttrStore.isEmpty() && metaAttrStore.size() == 2) {
+            String filePath = new File(System.getProperty("user.dir")).getPath() + "/files/schema.xml";
+            XMLParser xMLParser = new XMLParser();
+            xMLParser.xmlAttributesWriter(filePath, "schema", "table", "column", metaAttrStore);
+            return filePath;
+        }
+        return "";
+    }
 }

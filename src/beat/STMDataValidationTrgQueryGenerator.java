@@ -43,70 +43,78 @@ import org.hibernate.engine.jdbc.internal.Formatter;
  * @author Ravindra
  */
 public class STMDataValidationTrgQueryGenerator {
-    
-    public String getFinalDataSelectQuery(String[] srcColtranqry, String trgTable, String trgRule, String keyColumns) throws JSQLParserException {
-        
+
+    public String getFinalDataSelectQuery(String[] srcColtranqry, String trgTable, String trgRule, String keyColumns, String incRule) throws JSQLParserException {
+
         SqlParser sp = new SqlParser();
-        
+
+        String tmp = trgTable;
+        System.out.println("Data: " + trgTable + ":" + tmp + ":" + tmp.split(".").length);
+        if (tmp.contains(".")) {
+            tmp = tmp.substring(tmp.indexOf(".")+1, tmp.length()).replace("\"", "");
+            
+        }
+
         String finaldataselectqry = "select ";
-        
+
+        for (String s : srcColtranqry) {
+            System.out.println("Data: " + s);
+        }
+
         for (String s : srcColtranqry) {
             if (!s.equalsIgnoreCase("#INPROGRESS")) {
 
                 //Check the Data Transformation for DB
                 finaldataselectqry = finaldataselectqry + sp.getColumnNamefromQuery(s.replaceAll("/", ".")) + ", ";
-                
+
             }
         }
-        
+
         finaldataselectqry = finaldataselectqry.substring(0, finaldataselectqry.trim().length() - 1);
         if (!trgRule.isEmpty()) {
             if (trgRule.toLowerCase().contains("where")) {
-                finaldataselectqry = finaldataselectqry + " from " + trgTable + "  " + trgRule;
-            }
-            else
-            {
-                  finaldataselectqry = finaldataselectqry + " from " + trgTable + " where " + trgRule;
+                finaldataselectqry = finaldataselectqry + " from " + trgTable + "   " + trgRule;
+            } else {
+                finaldataselectqry = finaldataselectqry + " from " + trgTable + "   " + "  where " + trgRule;
             }
         } else {
-            finaldataselectqry = finaldataselectqry + " from " + trgTable;
+            finaldataselectqry = finaldataselectqry + " from " + trgTable + "  ";// + tmp;
         }
-        
-        if(finaldataselectqry.toLowerCase().contains("limit"))
-        {
-            if(finaldataselectqry.toLowerCase().contains("order by"))
-            {
-                String qry = finaldataselectqry;
-                
-                finaldataselectqry = qry.substring(0,qry.lastIndexOf("order by"))+" "+keyColumns+" "+qry.substring(qry.lastIndexOf("limit"), qry.length());
-            }
-            else
-            {
-                String qry = finaldataselectqry;
-                
-                finaldataselectqry = qry+" order by "+keyColumns;
-            }
-        }
-        else
-        {
-           if(finaldataselectqry.toLowerCase().contains("order by"))
-            {
-                String qry = finaldataselectqry;
-                
-                finaldataselectqry = qry.substring(0,qry.lastIndexOf("order by"))+" "+ keyColumns;
-            }
-            else
-            {
-                String qry = finaldataselectqry;
-                
-                finaldataselectqry = qry+" order by "+keyColumns;
-            }
-        }
-        
-        Formatter f = new BasicFormatterImpl();
-        String formatted_sql_code = f.format(finaldataselectqry);
 
-        //System.out.println(finaldataselectqry);
-        return formatted_sql_code;
+        if (!incRule.isEmpty()) {
+            if (finaldataselectqry.toLowerCase().contains("where")) {
+                finaldataselectqry = finaldataselectqry.substring(0, finaldataselectqry.toLowerCase().lastIndexOf("where") + 5) + " " + incRule + " and " + finaldataselectqry.substring(finaldataselectqry.toLowerCase().lastIndexOf("where") + 5, finaldataselectqry.length());
+            } else {
+                finaldataselectqry = finaldataselectqry + " where " + incRule;
+            }
+        }
+
+        if (finaldataselectqry.toLowerCase().contains("limit")) {
+            if (finaldataselectqry.toLowerCase().contains("order by")) {
+                String qry = finaldataselectqry;
+
+                finaldataselectqry = qry.substring(0, qry.lastIndexOf("order by")) + " " + keyColumns + " " + qry.substring(qry.lastIndexOf("limit"), qry.length());
+            } else {
+                String qry = finaldataselectqry;
+
+                finaldataselectqry = qry + " order by " + keyColumns;
+            }
+        } else {
+            if (finaldataselectqry.toLowerCase().contains("order by")) {
+                String qry = finaldataselectqry;
+
+                finaldataselectqry = qry.substring(0, qry.lastIndexOf("order by")) + " " + keyColumns;
+            } else {
+                String qry = finaldataselectqry;
+
+                finaldataselectqry = qry + " order by " + keyColumns;
+            }
+        }
+
+        Formatter f = new BasicFormatterImpl();
+//        String formatted_sql_code = f.format(finaldataselectqry);
+
+        System.out.println(finaldataselectqry);
+        return finaldataselectqry;
     }
 }

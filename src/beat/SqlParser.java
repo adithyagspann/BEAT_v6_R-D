@@ -2,8 +2,6 @@
 package beat;
 
 import java.io.StringReader;
-import java.util.logging.Level;
-
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
@@ -39,7 +37,7 @@ public class SqlParser {
     }
 
     public String getColumnNamefromQuery(String sql) throws JSQLParserException {
-        LOGGER.info("Fetching column name from Sql Query");
+        LOGGER.info("Fetching column name from Sql Query "+ sql);
         Select select = (Select) parserManager.parse(new StringReader(sql));
         plainSelect = (PlainSelect) select.getSelectBody();
 
@@ -63,6 +61,8 @@ public class SqlParser {
         LOGGER.info("Fetched column rule from Sql Query: " + columnName);
         return columnName;
     }
+    
+   
 
     public String getTableNameFromQuery(String sql) throws JSQLParserException {
         Select select = (Select) parserManager.parse(new StringReader(sql));
@@ -75,14 +75,14 @@ public class SqlParser {
         return tableName;
     }
 
-    public static void main(String[] args) {
-        try {
-            SqlParser parser = new SqlParser();
-            String value = parser.getColumnRulefromQuery("select SUBSTRING(order_number,1,instr(order_number,'-')-1) as data from CSVEX_source");
-            System.out.println("Value: " + value);
-        } catch (JSQLParserException ex) {
-            java.util.logging.Logger.getLogger(SqlParser.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+//    public static void main(String[] args) {
+//        try {
+//            SqlParser parser = new SqlParser();
+//            String value = parser.getColumnRulefromQuery("select CONCAT(APPL_XREF.INTR_XREF) as APPL_XREF_INTR_XREF from MCUST.DDW_TRNSCTN_ITM  fetch first 5000 rows only");
+//            System.out.println("Value: " + value);
+//        } catch (JSQLParserException ex) {
+//            java.util.logging.Logger.getLogger(SqlParser.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
 
 }

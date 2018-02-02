@@ -3,7 +3,6 @@ package beat;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,8 +15,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.LoggerFactory;
@@ -62,38 +59,42 @@ public class DBConnectionManager {
         } else {
             conn = DriverManager.getConnection(DB_URL);
         }
-        LOGGER.info("DB Connecetion has estabilished successfully: " + conn.getMetaData().getURL());
+        LOGGER.info("DB Connecetion has estabilished successfully: " + conn.getMetaData());
     }
 
-    public Connection getDBConFromFile(String conname) throws FileNotFoundException, IOException, ClassNotFoundException, SQLException {
-        System.out.println("Creating DB Connection");
-        LOGGER.info("Creating DB Connection from Connection File: " + conname);
-        FileReader fr = null;
-        File file = new File("conn/" + conname + ".con");
-        fr = new FileReader(file.getAbsoluteFile());
-        BufferedReader br = new BufferedReader(fr);
-        br.readLine();
-        DB_URL = br.readLine();
-        USER = br.readLine();
-        PASS = br.readLine();
-        JDBCDRIVER = br.readLine();
-        PATH = br.readLine();
+    public Connection getDBConFromFile(String conname) {//throws FileNotFoundException, IOException, ClassNotFoundException, SQLException {
+        try {
+            System.out.println("Creating DB Connection");
+            LOGGER.info("Creating DB Connection from Connection File: " + conname);
+            FileReader fr = null;
+            File file = new File("conn/" + conname + ".con");
+            fr = new FileReader(file.getAbsoluteFile());
+            BufferedReader br = new BufferedReader(fr);
+            br.readLine();
+            DB_URL = br.readLine();
+            USER = br.readLine();
+            PASS = br.readLine();
+            JDBCDRIVER = br.readLine();
+            PATH = br.readLine();
 
 //        System.out.println("DB_URL : " + DB_URL);
 //        System.out.println("USER : " + USER);
 //        System.out.println("PASS : " + PASS);
 //        System.out.println("JDBCDRIVER : " + JDBCDRIVER);
 //        System.out.println("PATH : " + PATH);
-        new ClassLoaderEngine(PATH);
-        Class.forName(JDBCDRIVER);
+            new ClassLoaderEngine(PATH);
+            Class.forName(JDBCDRIVER);
 
-        if (!USER.isEmpty()) {
-            conn = DriverManager.getConnection(DB_URL, USER, PASS);
-            //conn.getMetaData().getSchemas().next();
+            if (!USER.isEmpty()) {
+                conn = DriverManager.getConnection(DB_URL, USER, PASS);
+                //conn.getMetaData().getSchemas().next();
 
-            //System.out.println(conn.getMetaData().getSchemas().getString(1));
-        } else {
-            conn = DriverManager.getConnection(DB_URL);
+                //System.out.println(conn.getMetaData().getSchemas().getString(1));
+            } else {
+                conn = DriverManager.getConnection(DB_URL);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return conn;
     }
@@ -136,7 +137,7 @@ public class DBConnectionManager {
         List schlist = new ArrayList();
 
         ReadPropertyFile rpf = new ReadPropertyFile();
-        String schema_sql_type = new ReadPropertyFile().getSchemaPropval(conname);
+        String schema_sql_type = rpf.getSchemaPropval(conname);
 
         System.out.println("schema_sql_type : " + schema_sql_type);
 
@@ -185,7 +186,8 @@ public class DBConnectionManager {
         LOGGER.info("Retreving Schema Name for connection: " + conn);
         List schlist = new ArrayList();
 
-        String schema_sql_type = new ReadPropertyFile().getSchemaPropval(conname);
+        ReadPropertyFile rpf = new ReadPropertyFile();
+        String schema_sql_type = rpf.getSchemaPropval(conname);
 
         System.out.println("schema_sql_type : " + schema_sql_type);
 
@@ -194,13 +196,23 @@ public class DBConnectionManager {
             ResultSet schemas = meta.getSchemas();
 
             if (!schemas.next()) {
-                schemas = meta.getCatalogs();
-                schemas.next();
+                Statement stmt = conn.createStatement();
+                if (schema_sql_type.equalsIgnoreCase("phoenix")) {
+                    System.out.println("Getting the Schema of Hbase");
+                    schemas = stmt.executeQuery("select distinct TABLE_schem from SYSTEM.CATALOG");
+//                    schemas.next();
+
+                } else {
+                    System.out.println("Getting Catalogs");
+                    schemas = meta.getCatalogs();
+//                    schemas.next();
+                }
             }
 
             do {
                 String tableSchema = schemas.getString(1);    // "TABLE_SCHEM"
                 //String tableCatalog = schemas.getString(2); //"TABLE_CATALOG"
+                System.out.println("Data: "+tableSchema);
                 schlist.add(tableSchema);
 //                System.out.println("tableSchema : " + tableSchema);
             } while (schemas.next());
@@ -216,6 +228,7 @@ public class DBConnectionManager {
         LOGGER.info("Retriving Table Name from Schema: " + SCHEMA_NAME);
         List tablist = new ArrayList();
         String tableType[] = {"TABLE", "T"};
+        String tableTypehBase[] = {"TABLE", "TABLE"};
         int index = 3;
 
         System.out.println("conname :" + conname);
@@ -230,13 +243,21 @@ public class DBConnectionManager {
             try {
                 DatabaseMetaData meta = conn.getMetaData();
                 // ResultSet tabs = meta.getTables(null,SCHEMA_NAME,null,tableType);   
-                ResultSet tabs = meta.getTables(SCHEMA_NAME, SCHEMA_NAME, "%", tableType);
-
+                ResultSet tabs = null;
+                if (rpf.getDBType(conname).equalsIgnoreCase("phoenix")) {
+                    tabs = meta.getTables(SCHEMA_NAME, SCHEMA_NAME, "%", tableTypehBase);
+                } else {
+                    tabs = meta.getTables(SCHEMA_NAME, SCHEMA_NAME, "%", tableType);
+                }
                 if (!tabs.next()) {
                     Statement stmt = conn.createStatement();
 
                     if (rpf.getDBType(conname).equalsIgnoreCase("bigquery")) {
                         tabs = stmt.executeQuery("select table_id from " + SCHEMA_NAME + ".__TABLES__");
+                        tabs.next();
+                        index = 1;
+                    } else if (rpf.getDBType(conname).equalsIgnoreCase("phoenix")) {
+                        tabs = stmt.executeQuery("select distinct TABLE_NAME from SYSTEM.CATALOG where TABLE_schem = '" + SCHEMA_NAME + "'");
                         tabs.next();
                         index = 1;
                     } else {
@@ -481,6 +502,16 @@ public class DBConnectionManager {
 //  System.out.println("Count: "+(count));
         LOGGER.info("Fetch the Data from query: " + qry + " with count : " + rows.size());
         return rows;
+    }
+    
+    
+    public boolean executeInsertQuery(Connection conn, String qry) throws SQLException
+    {
+        System.out.println("Executing Qry: " + qry);
+        LOGGER.info("Exeuting query: " + qry);
+        
+        Statement stmt = conn.createStatement();
+       return stmt.execute(qry);
     }
 
 }

@@ -20,15 +20,15 @@ public class DataVdlSummry {
     public SimpleStringProperty result = new SimpleStringProperty();
 
     public String getValditionType() {
-        return valditionType.getValue();
+        return valditionType.get();
     }
 
     public String getSrcCnt() {
-        return srcCnt.getValue();
+        return srcCnt.get();
     }
 
     public String getTrgCnt() {
-        return trgCnt.getValue();
+        return trgCnt.get();
     }
 
    

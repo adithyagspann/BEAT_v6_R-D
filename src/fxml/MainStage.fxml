@@ -88,6 +88,21 @@
                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                      </HBox.margin>
                   </Button>
+                  <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label fx:id="title" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-text-fill: #D98880;" text="BEAT" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                           </padding>
+                           <font>
+                              <Font name="Bodoni MT" size="23.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
                   <HBox alignment="CENTER_RIGHT" prefHeight="40.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Separator orientation="VERTICAL" prefHeight="200.0" HBox.hgrow="ALWAYS" />
@@ -248,7 +263,7 @@
                                        <children>
                                           <VBox prefHeight="151.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                              <children>
-                                                <CheckBox fx:id="chkfst1000" mnemonicParsing="false" text="First 1000 Records" VBox.vgrow="ALWAYS">
+                                                <CheckBox fx:id="chkfst1000" disable="true" mnemonicParsing="false" text="First 1000 Records" VBox.vgrow="ALWAYS">
                                                    <VBox.margin>
                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                                    </VBox.margin>
@@ -256,7 +271,7 @@
                                                       <Font name="System Bold" size="12.0" />
                                                    </font>
                                                 </CheckBox>
-                                                <CheckBox fx:id="chklst1000" mnemonicParsing="false" text="Last 1000 Records" VBox.vgrow="ALWAYS">
+                                                <CheckBox fx:id="chklst1000" disable="true" mnemonicParsing="false" text="Last 1000 Records" VBox.vgrow="ALWAYS">
                                                    <VBox.margin>
                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                                    </VBox.margin>
@@ -280,7 +295,7 @@
                                                       <Font name="System Bold" size="12.0" />
                                                    </font>
                                                 </CheckBox>
-                                                <CheckBox fx:id="chkschtest" layoutX="15.0" layoutY="96.0" mnemonicParsing="false" text="Schedule Test" VBox.vgrow="ALWAYS">
+                                                <CheckBox fx:id="chkschtest" disable="true" layoutX="15.0" layoutY="96.0" mnemonicParsing="false" text="Schedule Test" VBox.vgrow="ALWAYS">
                                                    <font>
                                                       <Font name="System Bold" size="12.0" />
                                                    </font>
@@ -354,7 +369,7 @@
                         </HBox>
                         <TabPane fx:id="tbpanemanautotest" prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                           <tabs>
-                              <Tab fx:id="tabautotesting" onSelectionChanged="#automatedTestTabAction" style="-fx-background-color: #F7DC6F;" text="Automated Testing">
+                              <Tab fx:id="tabautotesting" onSelectionChanged="#automatedTestTabAction" style="-fx-background-color: #85C1E9;" text="Automated Testing">
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
@@ -461,7 +476,7 @@
                                                                      </children></AnchorPane>
                                                                </content>
                                                             </Tab>
-                                                            <Tab fx:id="fullautotab" style="-fx-background-color: #CD6155;" text="FULL">
+                                                            <Tab fx:id="fullautotab" disable="true" style="-fx-background-color: #CD6155;" text="FULL">
                                                                <content>
                                                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                                                                </content>
@@ -478,7 +493,7 @@
                                                                <items>
                                                                   <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
                                                                      <children>
-                                                                        <Button fx:id="autoresultrunbt" mnemonicParsing="false" onAction="#autoResultRunButtonAction" text="RUN" HBox.hgrow="ALWAYS">
+                                                                        <Button fx:id="autoresultrunbt" disable="true" mnemonicParsing="false" onAction="#autoResultRunButtonAction" text="RUN" HBox.hgrow="ALWAYS">
                                                                            <HBox.margin>
                                                                               <Insets left="10.0" right="10.0" />
                                                                            </HBox.margin>
@@ -740,7 +755,7 @@
                                     </AnchorPane>
                                  </content>
                               </Tab>
-                            <Tab fx:id="tabmantesting" onSelectionChanged="#manualTestTabAction" style="-fx-background-color: #58D68D;" text="Manual Testing">
+                            <Tab fx:id="tabmantesting" onSelectionChanged="#manualTestTabAction" style="-fx-background-color: #D4E6F1;" text="Manual Testing">
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
@@ -867,6 +882,350 @@
                                     </AnchorPane>
                               </content>
                             </Tab>
+                              <Tab fx:id="tabdataload" onSelectionChanged="#automatedDataTabAction" style="-fx-background-color: #85C1E9;" text="Data Stage">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="331.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <items>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                   <children>
+                                                      <TabPane fx:id="autosemifulltabpane1" prefHeight="162.0" prefWidth="298.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <tabs>
+                                                            <Tab fx:id="semiautotab1" style="-fx-background-color: #D98880;" text="SEMI">
+                                                               <content>
+                                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                     <children>
+                                                                        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                           <children>
+                                                                              <HBox alignment="CENTER" maxHeight="30.0" minHeight="30.0" style="-fx-background-color: #1C2833;" VBox.vgrow="ALWAYS">
+                                                                                 <children>
+                                                                                    <Label text="Tiltle" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conTitle_txt_fieldLoad" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                    <Label text="Author" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conAut_txt_fieldLoad" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                    <Label text="Version" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conVer_txt_fieldLoad" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="10.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                 </children>
+                                                                              </HBox>
+                                                                              <TableView fx:id="transDataLoadTbl" VBox.vgrow="ALWAYS">
+                                                                                 <columnResizePolicy>
+                                                                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                 </columnResizePolicy>
+                                                                                 <columns>
+                                                                                    <TableColumn fx:id="trgSchemaTblclmload" prefWidth="75.0" text="Target Schema" />
+                                                                                    <TableColumn fx:id="trgTableTblclmload" prefWidth="75.0" text="Target Table" />
+                                                                                    <TableColumn fx:id="trgColumnTblclmload" prefWidth="75.0" text="Target Table Column" />
+                                                                                    <TableColumn fx:id="trgColumnSpecTblclmload" prefWidth="75.0" text="Target Column Spec" />
+                                                                                    <TableColumn fx:id="trgColumnKeyTblclmload" prefWidth="75.0" text="Target Column Key" />
+                                                                                    <TableColumn fx:id="srcColumnSpecTblclmload" prefWidth="75.0" text="Source Column Spec" />
+                                                                                    <TableColumn fx:id="columnTransfTblclmload" prefWidth="75.0" text="Source Column Transformation" />
+                                                                                 </columns>
+                                                                                 <contextMenu>
+                                                                                    <ContextMenu>
+                                                                                       <items>
+                                                                                          <MenuItem mnemonicParsing="false" text="Refresh" />
+                                                                                          <MenuItem fx:id="clrstmtblcontextmenuitem11" mnemonicParsing="false" onAction="#stmTblClear" text="Clear" />
+                                                                                       </items>
+                                                                                    </ContextMenu>
+                                                                                 </contextMenu>
+                                                                              </TableView>
+                                                                              <HBox alignment="CENTER" maxHeight="50.0" minHeight="50.0" style="-fx-background-color: #1C2833;">
+                                                                                 <children>
+                                                                                    <Label text="Common Join Rule" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextArea fx:id="commonRuletxtarLoad" editable="false" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextArea>
+                                                                                    <Label layoutX="12.0" layoutY="27.0" text="Source Key Columns" textFill="WHITE" HBox.hgrow="ALWAYS" />
+                                                                                    <TextArea fx:id="sourceKeyColtxtarLoad" editable="false" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextArea>
+                                                                                    <Label text="Target Key Columns" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextArea fx:id="targetKeyColtxtarLoad" editable="false" layoutX="97.0" layoutY="12.0" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextArea>
+                                                                                 </children>
+                                                                              </HBox>
+                                                                           </children>
+                                                                        </VBox>
+                                                                     </children>
+                                                                  </AnchorPane>
+                                                               </content>
+                                                            </Tab>
+                                                            <Tab fx:id="fullautotab1" disable="true" style="-fx-background-color: #CD6155;" text="FULL">
+                                                               <content>
+                                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                                               </content>
+                                                            </Tab>
+                                                         </tabs>
+                                                      </TabPane>
+                                                   </children>
+                                                </AnchorPane>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                   <children>
+                                                      <VBox prefHeight="161.0" prefWidth="298.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <children>
+                                                            <ToolBar prefHeight="30.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                                               <items>
+                                                                  <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
+                                                                     <children>
+                                                                        <Button fx:id="autoLoadbtn" disable="true" mnemonicParsing="false" onAction="#autoLoadRunButtonAction" text="RUN" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets left="10.0" right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                        <Button fx:id="loadResultSavebtn" mnemonicParsing="false" text="SAVE" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                        <Button fx:id="loadResultClearbtn" mnemonicParsing="false" text="CLEAR" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                     </children>
+                                                                  </HBox>
+                                                               </items>
+                                                            </ToolBar>
+                                                            <TabPane fx:id="advanResultTabPane1" prefHeight="200.0" prefWidth="200.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                                                               <tabs>
+                                                                  <Tab fx:id="advanResultTab1" style="-fx-background-color: #85C1E9;" text="Data Validation">
+                                                                     <content>
+                                                                        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                                                                           <tabs>
+                                                                              <Tab text="Summary">
+                                                                                 <content>
+                                                                                    <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="dataLoadVdlSmry" prefHeight="80.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="vdlLoadType" prefWidth="75.0" text="Validation Type" />
+                                                                                                <TableColumn fx:id="vdlLoadsrcCnt" prefWidth="75.0" text="Source Count" />
+                                                                                                <TableColumn fx:id="vdlLoadtrgCnt" prefWidth="75.0" text="Target Count" />
+                                                                                                <TableColumn fx:id="vdlLoadResult" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children>
+                                                                                    </AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                           </tabs>
+                                                                        </TabPane>
+                                                                     </content>
+                                                                  </Tab>
+                                                               </tabs>
+                                                            </TabPane>
+                                                         </children>
+                                                      </VBox>
+                                                   </children>
+                                                </AnchorPane>
+                                             </items>
+                                          </SplitPane>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab fx:id="tabdataload1" onSelectionChanged="#automatedDataTabAction" style="-fx-background-color: #85C1E9;" text="Sqoop Generator">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="331.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <items>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                   <children>
+                                                      <TabPane fx:id="autosemifulltabpane11" prefHeight="162.0" prefWidth="298.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <tabs>
+                                                            <Tab fx:id="semiautotab11" style="-fx-background-color: #D98880;" text="SEMI">
+                                                               <content>
+                                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                     <children>
+                                                                        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                           <children>
+                                                                              <HBox alignment="CENTER" maxHeight="30.0" minHeight="30.0" style="-fx-background-color: #1C2833;" VBox.vgrow="ALWAYS">
+                                                                                 <children>
+                                                                                    <Label text="Tiltle" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conTitle_txt_fieldLoad1" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                    <Label text="Author" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conAut_txt_fieldLoad1" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                    <Label text="Version" textFill="WHITE" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </Label>
+                                                                                    <TextField fx:id="stm_conVer_txt_fieldLoad1" editable="false" HBox.hgrow="ALWAYS">
+                                                                                       <HBox.margin>
+                                                                                          <Insets bottom="2.0" left="2.0" right="10.0" top="2.0" />
+                                                                                       </HBox.margin>
+                                                                                    </TextField>
+                                                                                 </children>
+                                                                              </HBox>
+                                                                              <TableView fx:id="sqopTblView">
+                                                                                 <columns>
+                                                                                    <TableColumn fx:id="sqopJdbcUrl" prefWidth="75.0" text="JDBC URL" />
+                                                                                    <TableColumn fx:id="sqopDriverclass" prefWidth="75.0" text="Driver class" />
+                                                                                    <TableColumn fx:id="sqopUserName" prefWidth="75.0" text="User Name" />
+                                                                                    <TableColumn fx:id="sqoopPasswd" prefWidth="75.0" text="Password" />
+                                                                                    <TableColumn fx:id="sqopSrcSchema" prefWidth="75.0" text="Source Schema" />
+                                                                                    <TableColumn fx:id="sqopSrcTbl" prefWidth="75.0" text="Source Table" />
+                                                                                    <TableColumn fx:id="sqopSrcWhere" prefWidth="75.0" text="Source Where clause" />
+                                                                                    <TableColumn fx:id="sqopTrgSchema" prefWidth="75.0" text="Target Schema" />
+                                                                                    <TableColumn fx:id="sqopTrgTable" prefWidth="75.0" text="Target Table" />
+                                                                                    <TableColumn fx:id="sqopTrgDir" prefWidth="75.0" text="Targer Dir" />
+                                                                                    <TableColumn fx:id="sqopFieldDelimt" prefWidth="75.0" text="Field Demiliter" />
+                                                                                    <TableColumn fx:id="sqopLineDelimt" prefWidth="75.0" text="Line Demiliter" />
+                                                                                    <TableColumn fx:id="sqopMapper" prefWidth="75.0" text="Mapper" />
+                                                                                    <TableColumn fx:id="sqopSplitBy" prefWidth="75.0" text="Split Key" />
+                                                                                 </columns>
+                                                                                 <contextMenu>
+                                                                                    <ContextMenu>
+                                                                                       <items>
+                                                                                          <MenuItem mnemonicParsing="false" text="Refresh" />
+                                                                                          <MenuItem fx:id="clrstmtblcontextmenuitem111" mnemonicParsing="false" onAction="#stmTblClear" text="Clear" />
+                                                                                       </items>
+                                                                                    </ContextMenu>
+                                                                                 </contextMenu>
+                                                                              </TableView>
+                                                                           </children>
+                                                                        </VBox>
+                                                                     </children>
+                                                                  </AnchorPane>
+                                                               </content>
+                                                            </Tab>
+                                                            <Tab fx:id="fullautotab11" disable="true" style="-fx-background-color: #CD6155;" text="FULL">
+                                                               <content>
+                                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                                               </content>
+                                                            </Tab>
+                                                         </tabs>
+                                                      </TabPane>
+                                                   </children>
+                                                </AnchorPane>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                   <children>
+                                                      <VBox prefHeight="161.0" prefWidth="298.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <children>
+                                                            <ToolBar prefHeight="30.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                                               <items>
+                                                                  <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
+                                                                     <children>
+                                                                        <Button fx:id="autoLoadbtn1" disable="true" mnemonicParsing="false" onAction="#autoLoadRunButtonAction" text="RUN" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets left="10.0" right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                        <Button fx:id="loadResultSavebtn1" mnemonicParsing="false" text="SAVE" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                        <Button fx:id="loadResultClearbtn1" mnemonicParsing="false" text="CLEAR" HBox.hgrow="ALWAYS">
+                                                                           <HBox.margin>
+                                                                              <Insets right="10.0" />
+                                                                           </HBox.margin>
+                                                                        </Button>
+                                                                     </children>
+                                                                  </HBox>
+                                                               </items>
+                                                            </ToolBar>
+                                                            <TabPane fx:id="advanResultTabPane11" prefHeight="200.0" prefWidth="200.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                                                               <tabs>
+                                                                  <Tab fx:id="advanResultTab11" style="-fx-background-color: #85C1E9;" text="Data Validation">
+                                                                     <content>
+                                                                        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                                                                           <tabs>
+                                                                              <Tab text="Summary">
+                                                                                 <content>
+                                                                                    <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                                                       <children>
+                                                                                          <TableView fx:id="dataLoadVdlSmry1" prefHeight="80.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                             <columnResizePolicy>
+                                                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                                                             </columnResizePolicy>
+                                                                                             <columns>
+                                                                                                <TableColumn fx:id="vdlLoadType1" prefWidth="75.0" text="Validation Type" />
+                                                                                                <TableColumn fx:id="vdlLoadsrcCnt1" prefWidth="75.0" text="Source Count" />
+                                                                                                <TableColumn fx:id="vdlLoadtrgCnt1" prefWidth="75.0" text="Target Count" />
+                                                                                                <TableColumn fx:id="vdlLoadResult1" prefWidth="75.0" text="Result" />
+                                                                                             </columns>
+                                                                                          </TableView>
+                                                                                       </children>
+                                                                                    </AnchorPane>
+                                                                                 </content>
+                                                                              </Tab>
+                                                                           </tabs>
+                                                                        </TabPane>
+                                                                     </content>
+                                                                  </Tab>
+                                                               </tabs>
+                                                            </TabPane>
+                                                         </children>
+                                                      </VBox>
+                                                   </children>
+                                                </AnchorPane>
+                                             </items>
+                                          </SplitPane>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
                           </tabs>
                         </TabPane>
                      </children>

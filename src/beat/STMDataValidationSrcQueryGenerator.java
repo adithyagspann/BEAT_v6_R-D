@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import net.sf.jsqlparser.JSQLParserException;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.hibernate.engine.jdbc.internal.Formatter;
@@ -21,38 +23,111 @@ public class STMDataValidationSrcQueryGenerator {
     private final static Logger LOGGER = LoggerFactory.getLogger(STMDataValidationSrcQueryGenerator.class);
     private int i;
 
-    public String getSrcDataValidationQuery(String[] srcColtranqry, String cmnjoin) throws JSQLParserException {
+    public String getSrcDataValidationQuery(ObservableList stmSrcTranData, String cmnjoin, String source_key, String incRule) throws JSQLParserException {
         LOGGER.info("Validating the Source Data Validataion Query.");
-        String datavalidqry = "";
+        String datavalidqry = "select ";
         int tbl_incr = 0;
         List tmp_tbl_list = new ArrayList();
-        List joincols = getJoinColumns(cmnjoin);
+//        List joincols = getJoinColumns(cmnjoin);
 
-        for (String q : srcColtranqry) {
+        SqlParser parser = new SqlParser();
 
-            if (!q.equalsIgnoreCase("#INPROGRESS")) {
+//        for (int i = 0; i < srcColtranqry.length; i++) {
+//            if (i == srcColtranqry.length - 1) {
+//                datavalidqry += parser.getColumnNamefromQuery(srcColtranqry[i]) + " from " + cmnjoin;
+//            } else {
+//                datavalidqry += parser.getColumnNamefromQuery(srcColtranqry[i]) + ", ";
+//            }
+//        }
+        for (int i = 0; i < stmSrcTranData.size(); i++) {
+            if (i == stmSrcTranData.size() - 1) {
+                datavalidqry += parser.getColumnRulefromQuery(stmSrcTranData.get(i).toString().substring(stmSrcTranData.get(i).toString().lastIndexOf(":") + 1, stmSrcTranData.get(i).toString().length())) + " as " + stmSrcTranData.get(i).toString().substring(0, stmSrcTranData.get(i).toString().lastIndexOf(":")) + " from " + cmnjoin ;
+            } else {
+                datavalidqry += parser.getColumnRulefromQuery(stmSrcTranData.get(i).toString().substring(stmSrcTranData.get(i).toString().lastIndexOf(":") + 1, stmSrcTranData.get(i).toString().length())) + " as " + stmSrcTranData.get(i).toString().substring(0, stmSrcTranData.get(i).toString().lastIndexOf(":")) + ", ";
+            }
 
-                q = mergeJoinColsWithQuery(q, joincols);
+        }
 
-                if (tbl_incr == 0) {
-
-                    datavalidqry = "With " + "tmp_tbl_" + tbl_incr + " as (\n" + q.trim() + "), ";
-                    tmp_tbl_list.add("tmp_tbl_" + tbl_incr);
-                    tbl_incr++;
-                } else {
-
-                    datavalidqry = datavalidqry + "\n" + "tmp_tbl_" + tbl_incr + " as (\n" + q + "), ";
-                    tmp_tbl_list.add("tmp_tbl_" + tbl_incr);
-                    tbl_incr++;
-                }
+        if (!incRule.isEmpty()) {
+            if (datavalidqry.toLowerCase().contains("where")) {
+                datavalidqry = datavalidqry.substring(0, datavalidqry.toLowerCase().lastIndexOf("where") + 5) + " " + incRule + " and " + datavalidqry.substring(datavalidqry.toLowerCase().lastIndexOf("where") + 5, datavalidqry.length());
+            } else {
+                datavalidqry = datavalidqry + " where " + incRule;
             }
         }
 
-        datavalidqry = datavalidqry.trim().substring(0, datavalidqry.length() - 2);
-        String final_data_join = finalDataJoinCreator(joincols, tmp_tbl_list);
-        String final_select_qry = getFinalDataSelectQuery(srcColtranqry);
-        datavalidqry = datavalidqry + final_select_qry + final_data_join;
+        datavalidqry = datavalidqry +" order by "+source_key;
+//        datavalidqry = datavalidqry.trim().substring(0, datavalidqry.length() - 2);
+//        String final_data_join = finalDataJoinCreator(joincols, tmp_tbl_list);
+//        String final_select_qry = getFinalDataSelectQuery(srcColtranqry);
+//        datavalidqry = datavalidqry + final_select_qry + final_data_join;
+        Formatter f = new BasicFormatterImpl();
+        String formatted_sql_code = f.format(datavalidqry);
 
+//        System.out.println("datavalidqry : " + formatted_sql_code);
+        LOGGER.info("Validated the Source Data Validataion Query.");
+        return formatted_sql_code;
+    }
+
+    public String getSrcDataValidationQuery_Backup_1(ObservableMap<String, String> stmSrcTranData, String cmnjoin) throws JSQLParserException {
+        LOGGER.info("Validating the Source Data Validataion Query.");
+        String datavalidqry = "select ";
+        int tbl_incr = 0;
+        List tmp_tbl_list = new ArrayList();
+//        List joincols = getJoinColumns(cmnjoin);
+
+        SqlParser parser = new SqlParser();
+
+//        for (int i = 0; i < srcColtranqry.length; i++) {
+//            if (i == srcColtranqry.length - 1) {
+//                datavalidqry += parser.getColumnNamefromQuery(srcColtranqry[i]) + " from " + cmnjoin;
+//            } else {
+//                datavalidqry += parser.getColumnNamefromQuery(srcColtranqry[i]) + ", ";
+//            }
+//        }
+        int i = 0;
+
+        for (ObservableMap.Entry<String, String> queryData : stmSrcTranData.entrySet()) {
+            if (i == stmSrcTranData.size() - 1) {
+                datavalidqry += parser.getColumnRulefromQuery(queryData.getValue()) + " as " + queryData.getKey() + " from " + cmnjoin;
+            } else {
+                datavalidqry += parser.getColumnRulefromQuery(queryData.getValue()) + " as " + queryData.getKey() + ", ";
+            }
+            i++;
+        }
+//        datavalidqry = datavalidqry.trim().substring(0, datavalidqry.length() - 2);
+//        String final_data_join = finalDataJoinCreator(joincols, tmp_tbl_list);
+//        String final_select_qry = getFinalDataSelectQuery(srcColtranqry);
+//        datavalidqry = datavalidqry + final_select_qry + final_data_join;
+        Formatter f = new BasicFormatterImpl();
+        String formatted_sql_code = f.format(datavalidqry);
+
+//        System.out.println("datavalidqry : " + formatted_sql_code);
+        LOGGER.info("Validated the Source Data Validataion Query.");
+        return formatted_sql_code;
+    }
+
+    public String getSrcDataValidationQuery_Backup(String[] srcColtranqry, String cmnjoin) throws JSQLParserException {
+        LOGGER.info("Validating the Source Data Validataion Query.");
+        String datavalidqry = "select ";
+        int tbl_incr = 0;
+        List tmp_tbl_list = new ArrayList();
+//        List joincols = getJoinColumns(cmnjoin);
+
+        SqlParser parser = new SqlParser();
+
+        for (int i = 0; i < srcColtranqry.length; i++) {
+            if (i == srcColtranqry.length - 1) {
+                datavalidqry += parser.getColumnNamefromQuery(srcColtranqry[i]) + " from " + cmnjoin;
+            } else {
+                datavalidqry += parser.getColumnNamefromQuery(srcColtranqry[i]) + ", ";
+            }
+        }
+
+//        datavalidqry = datavalidqry.trim().substring(0, datavalidqry.length() - 2);
+//        String final_data_join = finalDataJoinCreator(joincols, tmp_tbl_list);
+//        String final_select_qry = getFinalDataSelectQuery(srcColtranqry);
+//        datavalidqry = datavalidqry + final_select_qry + final_data_join;
         Formatter f = new BasicFormatterImpl();
         String formatted_sql_code = f.format(datavalidqry);
 
@@ -195,7 +270,7 @@ public class STMDataValidationSrcQueryGenerator {
         return finaldataselectqry;
     }
 
-    public String getSrcDataValidationQuery(String[] srcColtranqry, String tblname, String schname, String cmnjoin, String hostType, String keyColumns) throws JSQLParserException {
+    public String getSrcDataValidationQuery(String[] srcColtranqry, String tblname, String schname, String cmnjoin, String hostType, String keyColumns, String incRule) throws JSQLParserException {
 
         SqlParser sp = new SqlParser();
         String datavalidqry = "Select ";
@@ -212,43 +287,48 @@ public class STMDataValidationSrcQueryGenerator {
             }
 
             datavalidqry = datavalidqry.trim().substring(0, datavalidqry.length() - 1);
+            if (cmnjoin.toLowerCase().startsWith("where")) {
+                datavalidqry = datavalidqry + " from " + schname + "." + tblname + " " + tblname + " " + cmnjoin;
+            } else if (cmnjoin.isEmpty()) {
+                datavalidqry = datavalidqry + " from " + schname + "." + tblname + " " + tblname;
+            } else {
+                datavalidqry = datavalidqry + " from " + schname + "." + tblname + " " + tblname + " where " + cmnjoin;
+            }
 
-            datavalidqry = datavalidqry + " from " + schname + "." + tblname + " " + cmnjoin;
-            
-            
-            if(datavalidqry.toLowerCase().contains("limit"))
-            {
-                if(datavalidqry.toLowerCase().contains("order by"))
-                {
-                     String qry = datavalidqry;
-                
-                datavalidqry = qry.substring(0,qry.lastIndexOf("order by"))+" "+keyColumns+" "+qry.substring(qry.lastIndexOf("limit"), qry.length());
+            if (!incRule.isEmpty()) {
+
+                if (datavalidqry.toLowerCase().contains("where")) {
+                    String tmpqry = datavalidqry;
+                    tmpqry = datavalidqry.substring(0, datavalidqry.toLowerCase().lastIndexOf("where") + 5) + " " + incRule + " and " + datavalidqry.substring(datavalidqry.toLowerCase().lastIndexOf("where") + 5, datavalidqry.length());
+                    datavalidqry = tmpqry;
+                } else {
+                    datavalidqry = datavalidqry + " where " + incRule;
                 }
-                else
-                {
-                 String qry = datavalidqry;
-                
-                datavalidqry = qry+" order by "+keyColumns;   
+
+            }
+
+            if (datavalidqry.toLowerCase().contains("limit")) {
+                if (datavalidqry.toLowerCase().contains("order by")) {
+                    String qry = datavalidqry;
+
+                    datavalidqry = qry.substring(0, qry.lastIndexOf("order by")) + " " + keyColumns + " " + qry.substring(qry.lastIndexOf("limit"), qry.length());
+                } else {
+                    String qry = datavalidqry;
+
+                    datavalidqry = qry + " order by " + keyColumns;
+                }
+            } else {
+                if (datavalidqry.toLowerCase().contains("order by")) {
+                    String qry = datavalidqry;
+
+                    datavalidqry = qry.substring(0, qry.lastIndexOf("order by")) + " " + keyColumns;
+                } else {
+
+                    String qry = datavalidqry;
+
+                    datavalidqry = qry + " order by " + keyColumns;
                 }
             }
-            else
-            {
-                 if(datavalidqry.toLowerCase().contains("order by"))
-                {
-                   String qry = datavalidqry;
-                
-                datavalidqry = qry.substring(0,qry.lastIndexOf("order by"))+" "+ keyColumns; 
-                }
-                else
-                {
-                    
-                String qry = datavalidqry;
-                
-                datavalidqry = qry+" order by "+keyColumns;
-                }
-            }
-            
-            
 
             Formatter f = new BasicFormatterImpl();
             formatted_sql_code = f.format(datavalidqry);
@@ -267,7 +347,7 @@ public class STMDataValidationSrcQueryGenerator {
 
             datavalidqry = datavalidqry.trim().substring(0, datavalidqry.length() - 1);
 
-            datavalidqry = datavalidqry + " from " + tblname + " " + cmnjoin;
+            datavalidqry = datavalidqry + " from \"" + tblname + "\" " + cmnjoin;
             formatted_sql_code = datavalidqry;
 
         }

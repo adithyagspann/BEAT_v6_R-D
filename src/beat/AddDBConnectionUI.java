@@ -95,9 +95,9 @@ public class AddDBConnectionUI {
         password = new PasswordField();
         password.setPromptText("Password");
         jarpath = new TextField();
-        jarpath.setPromptText("Please Enter drive class : com.mysql.jdbc.Driver");
+        jarpath.setPromptText("Please enter the path of jar");
         driverclass = new TextField();
-        driverclass.setPromptText("Please enter the path of jar");
+        driverclass.setPromptText("Please Enter drive class : com.mysql.jdbc.Driver");
         
         int x = 0, y = 0;
         
