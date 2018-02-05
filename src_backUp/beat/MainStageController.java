@@ -1,9 +1,7 @@
 /** Copyright © 2017-2020, GSPANN Technologies and/or its affiliates. All rights reserved. * */
 package beat;
 
-import hadoop.HadoopCommonFunction;
 import hadoop.SqoopBean;
-import hadoop.SqoopExcellDataProcess;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -100,17 +98,16 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.tools.ant.DirectoryScanner;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
+import org.hibernate.engine.jdbc.internal.Formatter;
 import org.slf4j.LoggerFactory;
-import parser.ConnProperties;
 import remoteutility.FTPEngine;
-import remoteutility.RemoteFileOps;
 
 /**
  *
  * @author Ravindra
  */
 public class MainStageController implements Initializable {
-    
+
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MainStageController.class);
     private static final String FILEPATH = new File(System.getProperty("user.dir")).getPath() + "/files/schema.xml";
     @FXML
@@ -133,13 +130,13 @@ public class MainStageController implements Initializable {
     private TextField tfsrcconname;
     @FXML
     private TextField tftrgconname;
-    
+
     @FXML
     TextField stm_conTitle_txt_fieldLoad, stm_conAut_txt_fieldLoad, stm_conVer_txt_fieldLoad;
     @FXML
     private Tab tabmantesting, semiautotab, fullautotab, manualResultSummaryTab, tabdataload;
     @FXML
-    private Tab tabautotesting, advanceTestScenTab, advanResultTab, basicResultTab, basicTestScenTab, manualsrcdttab, manualtrgdttab, sqoopGenTab;
+    private Tab tabautotesting, advanceTestScenTab, advanResultTab, basicResultTab, basicTestScenTab, manualsrcdttab, manualtrgdttab;
     @FXML
     private Tab tabrslttotalcnt, tabrsltnullcol, tabrsltnotnullcol, tabrsltdupcol, tabrsltdstcol, tabrsltsumcol, tabrsltmincol, tabrsltmaxcol;
     @FXML
@@ -156,7 +153,7 @@ public class MainStageController implements Initializable {
     private TableView transDataTbl, transDataLoadTbl;
     @FXML
     private TableColumn trgSchemaTblclm, trgTableTblclm, trgColumnTblclm, trgColumnSpecTblclm, trgColumnKeyTblclm, srcColumnSpecTblclm, columnTransfTblclm;
-    
+
     @FXML
     private TableColumn trgSchemaTblclmload, trgTableTblclmload, trgColumnTblclmload, trgColumnSpecTblclmload, trgColumnKeyTblclmload, srcColumnSpecTblclmload, columnTransfTblclmload;
     @FXML
@@ -196,14 +193,7 @@ public class MainStageController implements Initializable {
             sqopSplitBy;
     @FXML
     private ObservableList<SqoopBean> sqoopList;
-    
-    @FXML
-    private TableColumn sqopServerName, sqopServerPath, sqoopCmd;
-    
-    @FXML
-    private TableView sqoopCmdTbl;
-    @FXML
-    private Button sqpGenertor, sqpSave, sqpClear;
+
     @FXML
     private TableColumn<ManualSummaryBean, String> viewsummarytbltcid, viewsummarytblrslt;
 
@@ -263,15 +253,15 @@ public class MainStageController implements Initializable {
     private FileChooser fileChooser;
     private ObservableSet<CheckBox> selectedCheckBoxes = FXCollections.observableSet();
     private ObservableSet<CheckBox> unselectedCheckBoxes = FXCollections.observableSet();
-    
+
     private IntegerBinding numCheckBoxesSelected = Bindings.size(selectedCheckBoxes);
     private ObservableList<STMBean> stmTransData;
-    
+
     private String[] trgColData;
 
     // Object for process the STM and writing the final data to the Excel
     private STMExcellDataProcess stmData;
-    
+
     private TotalCountBean bean;
     private ObservableMap<String, String> stmComSplRule;
     private ObservableList stmSrcTranData;
@@ -280,23 +270,17 @@ public class MainStageController implements Initializable {
     private String trgCnt;
     private ObservableList<ObservableList> srcCmplResult;
     private ObservableList trgCmplResult;
-    
+
     private List src_table, trg_table;
     private CSVSQLEngine csvengine;
     private final int maxNumSelected = 1;
     private Map<String, TableView> resultTableList;
     private Map<String, ObservableList> resultTableListData;
-    
-    @FXML
-    Label srcLbl, trgLbl;
-    
-    @FXML
-    Separator headSptr;
 
     //for auto testcase store
     Map<String, String> srctcidmap;
     Map<String, String> trgtcidmap;
-    
+
     @FXML
     private ComboBox testResultSelect;
     //for auto test row buffer    
@@ -310,25 +294,24 @@ public class MainStageController implements Initializable {
     private ButtonType loginButtonType, incOkBut;
     private Button test;
     private Button localfilebt;
-    
     private TextField hosturl;
-    
+
     private ComboBox filetypecmb;
     private TextField jarpath;
-    
+
     private Label msglabel;
     private Label dataissuelabel;
-    
+
     @FXML
     private Label title;
-    
+
     private CheckBox whereClausesrcStatus;
     private TextArea whereClausesrc;
 
 //file chooser
     File file;
     private TextArea whereClausetrg, groupBysrc, groupBytrg, havingSrc, havingTrg, orderBySrc, orderByTrg;
-    
+
     private CheckBox whereClausetrgStatus;
     private List fileWhereClause;
     @FXML
@@ -337,7 +320,7 @@ public class MainStageController implements Initializable {
     private List<String> incrementalCondition;
     @FXML
     private TableColumn vdlLoadType, vdlLoadsrcCnt, vdlLoadtrgCnt, vdlLoadResult;
-    
+
     @FXML
     private void dbAddButtonAction(ActionEvent event) {
         logger.info("Clicked on Add DB Button");
@@ -349,20 +332,20 @@ public class MainStageController implements Initializable {
             logger.error(ex.toString());
             Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
+
     @FXML
     private void ffAddButtonAction(ActionEvent event) {
-        
+
         System.out.print("Clicked ADD FILE Button");
         logger.info("Clicked on  Add File Button");
         //CALLING ADD FILE CONNECTION UI
         new FlatFileConnectionUI(lfftv, mainvbox, "");
         new LoadFlatFilesTreeView(flatfilelist);
-        
+
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         logger.info("UI Loaded");
@@ -376,14 +359,14 @@ public class MainStageController implements Initializable {
         manualClear.setDisable(true);
         manualRun.setDisable(true);
         manualSave.setDisable(true);
-        
+
         resultTableList = FXCollections.observableHashMap();
         resultTableListData = FXCollections.observableHashMap();
         testScenTabPane.getSelectionModel().selectedItemProperty().addListener(
                 new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
-                
+
                 if (testScenTabPane.getSelectionModel().getSelectedItem().getText().equalsIgnoreCase("Data Validation Test Scenarios")) {
                     advanResultTabPane.getSelectionModel().select(advanResultTab);
                 } else {
@@ -415,144 +398,144 @@ public class MainStageController implements Initializable {
         chktcnts.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
                 if (chktcnts.isSelected()) {
                     addTab(tbpaneautoresult, tabrslttotalcnt, tabindex);
-                    
+
                 } else {
                     tabindex = tbpaneautoresult.getTabs().indexOf(tabrslttotalcnt);
                     closeTab(tabrslttotalcnt);
                 }
-                
+
             }
         });
-        
+
         chkncnts.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
                 if (chkncnts.isSelected()) {
                     addTab(tbpaneautoresult, tabrsltnullcol, tabindex);
-                    
+
                 } else {
                     tabindex = tbpaneautoresult.getTabs().indexOf(tabrsltnullcol);
                     closeTab(tabrsltnullcol);
                 }
-                
+
             }
         });
-        
+
         chknncnts.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
                 if (chknncnts.isSelected()) {
                     addTab(tbpaneautoresult, tabrsltnotnullcol, tabindex);
-                    
+
                 } else {
                     tabindex = tbpaneautoresult.getTabs().indexOf(tabrsltnotnullcol);
                     closeTab(tabrsltnotnullcol);
                 }
-                
+
             }
         });
-        
+
         chkdupcnts.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
                 if (chkdupcnts.isSelected()) {
                     addTab(tbpaneautoresult, tabrsltdupcol, tabindex);
-                    
+
                 } else {
                     tabindex = tbpaneautoresult.getTabs().indexOf(tabrsltdupcol);
                     closeTab(tabrsltdupcol);
                 }
-                
+
             }
         });
-        
+
         chkdstcnts.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
                 if (chkdstcnts.isSelected()) {
                     addTab(tbpaneautoresult, tabrsltdstcol, tabindex);
-                    
+
                 } else {
                     tabindex = tbpaneautoresult.getTabs().indexOf(tabrsltdstcol);
                     closeTab(tabrsltdstcol);
                 }
-                
+
             }
         });
-        
+
         chksumnum.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
                 if (chksumnum.isSelected()) {
                     addTab(tbpaneautoresult, tabrsltsumcol, tabindex);
-                    
+
                 } else {
                     tabindex = tbpaneautoresult.getTabs().indexOf(tabrsltsumcol);
                     closeTab(tabrsltsumcol);
                 }
-                
+
             }
         });
-        
+
         chkmax.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
                 if (chkmax.isSelected()) {
                     addTab(tbpaneautoresult, tabrsltmaxcol, tabindex);
-                    
+
                 } else {
                     tabindex = tbpaneautoresult.getTabs().indexOf(tabrsltmaxcol);
                     closeTab(tabrsltmaxcol);
                 }
-                
+
             }
         });
-        
+
         chkmin.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
                 if (chkmin.isSelected()) {
                     addTab(tbpaneautoresult, tabrsltmincol, tabindex);
-                    
+
                 } else {
                     tabindex = tbpaneautoresult.getTabs().indexOf(tabrsltmincol);
                     closeTab(tabrsltmincol);
                 }
-                
+
             }
         });
-        
+
         chkfst1000.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
             }
         });
-        
+
         chklst1000.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
             }
         });
-        
+
         chkcmpltdata.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
             }
         });
-        
+
         chkincrdata.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
@@ -563,27 +546,27 @@ public class MainStageController implements Initializable {
                             List incRule = getDynamicIncRule();
                             System.out.println("Data: " + incRule);
                             if (incRule.isEmpty()) {
-                                
+
                                 chkincrdata.setSelected(false);
-                                
+
                             }
                         } catch (Exception ex) {
                             new ExceptionUI(ex);
                         }
                     }
                 } else {
-                    
+
                 }
             }
         });
-        
+
         chkschtest.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                     Boolean old_val, Boolean new_val) {
-                
+
             }
         });
-        
+
         configureCheckBox(chkfst1000);
         configureCheckBox(chklst1000);
         configureCheckBox(chkcmpltdata);
@@ -598,10 +581,10 @@ public class MainStageController implements Initializable {
         numCheckBoxesSelected.addListener((obs, oldSelectedCount, newSelectedCount) -> {
             if (newSelectedCount.intValue() >= maxNumSelected) {
                 unselectedCheckBoxes.forEach(cb -> cb.setDisable(true));
-                
+
             } else {
                 unselectedCheckBoxes.forEach(cb -> cb.setDisable(false));
-                
+
             }
         });
 
@@ -623,19 +606,19 @@ public class MainStageController implements Initializable {
                 } catch (Exception ex) {
                     Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         });
 
         //Obect Creation for the File Chooser
         fileChooser = new FileChooser();
-        
+
         setTableColumnsBean();
         exceptionValue = new StringBuffer();
-        
+
         testResultSelect.getItems().addAll("Failed", "Both", "Passed");
         testResultSelect.setDisable(true);
-        
+
         testResultSelect.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -644,42 +627,42 @@ public class MainStageController implements Initializable {
                 ObservableList listData = null;
                 for (Map.Entry<String, ObservableList> tableD : tableData.entrySet()) {
                     String tableV = tableD.getKey();
-                    
+
                     if (tableV.equalsIgnoreCase("total_cnts")) {
                         ObservableList<TotalCountBean> data = tableD.getValue();
                         if (newValue.toString().equalsIgnoreCase("passed")) {
                             tableView.get(tableV).setItems(FXCollections.observableArrayList(data.stream().filter(t -> t.getTotCnt().equalsIgnoreCase("passed")).collect(Collectors.toList())));
-                            
+
                         } else if (newValue.toString().equalsIgnoreCase("failed")) {
                             tableView.get(tableV).setItems(FXCollections.observableArrayList(data.stream().filter(t -> t.getTotCnt().equalsIgnoreCase("failed")).collect(Collectors.toList())));
-                            
+
                         } else {
-                            
+
                             tableView.get(tableV).setItems(data);
-                            
+
                         }
-                        
+
                     } else {
                         ObservableList<CountsMaxMinBean> data = tableD.getValue();
                         if (newValue.toString().equalsIgnoreCase("passed")) {
                             tableView.get(tableV).setItems(FXCollections.observableArrayList(data.stream().filter(t -> t.getResult().equalsIgnoreCase("passed")).collect(Collectors.toList())));
-                            
+
                         } else if (newValue.toString().equalsIgnoreCase("failed")) {
                             tableView.get(tableV).setItems(FXCollections.observableArrayList(data.stream().filter(t -> t.getResult().equalsIgnoreCase("failed")).collect(Collectors.toList())));
-                            
+
                         } else {
-                            
+
                             tableView.get(tableV).setItems(data);
-                            
+
                         }
-                        
+
                     }
-                    
+
                 }
-                
+
             }
         });
-        
+
         manualjtasrcquery.textProperty().addListener((observable, oldValue, newValue) -> {
             if (manualjtasrcquery.getText().isEmpty() && !srcExec.isSelected()) {
                 manualRun.setDisable(true);
@@ -687,7 +670,7 @@ public class MainStageController implements Initializable {
                 manualRun.setDisable(false);
             }
         });
-        
+
         manualjtatrgquery.textProperty().addListener((observable, oldValue, newValue) -> {
             if (manualjtatrgquery.getText().isEmpty() && !trgExec.isSelected()) {
                 manualRun.setDisable(true);
@@ -695,7 +678,7 @@ public class MainStageController implements Initializable {
                 manualRun.setDisable(false);
             }
         });
-        
+
     }
 
     /*
@@ -736,7 +719,7 @@ public class MainStageController implements Initializable {
         trgColumnKeyTblclm.setCellValueFactory(new PropertyValueFactory("targetColumnKey"));
         srcColumnSpecTblclm.setCellValueFactory(new PropertyValueFactory("sourceColumnSpec"));
         columnTransfTblclm.setCellValueFactory(new PropertyValueFactory("columnTransRule"));
-        
+
         trgSchemaTblclmload.setCellValueFactory(new PropertyValueFactory("targetSchema"));
         trgTableTblclmload.setCellValueFactory(new PropertyValueFactory("targetTableName"));
         trgColumnTblclmload.setCellValueFactory(new PropertyValueFactory("targetColumnName"));
@@ -744,7 +727,7 @@ public class MainStageController implements Initializable {
         trgColumnKeyTblclmload.setCellValueFactory(new PropertyValueFactory("targetColumnKey"));
         srcColumnSpecTblclmload.setCellValueFactory(new PropertyValueFactory("sourceColumnSpec"));
         columnTransfTblclmload.setCellValueFactory(new PropertyValueFactory("columnTransRule"));
-        
+
         logger.info("Setting Total Counts Table for UI");
         /*
          * The below statements are used STM table
@@ -752,7 +735,7 @@ public class MainStageController implements Initializable {
         src_count_tbl_col.setCellValueFactory(new PropertyValueFactory<TotalCountBean, String>("srcCnt"));
         trg_count_tbl_col.setCellValueFactory(new PropertyValueFactory<TotalCountBean, String>("trgCnt"));
         result_count_tbl_col.setCellValueFactory(new PropertyValueFactory<TotalCountBean, String>("totCnt"));
-        
+
         total_cnt_testplan_data = FXCollections.observableArrayList();
 
         //Null Count Coloumns
@@ -811,19 +794,19 @@ public class MainStageController implements Initializable {
         cnt_min_trg_col_count_tbl_col.setCellValueFactory(new PropertyValueFactory<CountsMaxMinBean, String>("trgColCount"));
         cnt_min_result_count_tbl_col.setCellValueFactory(new PropertyValueFactory<CountsMaxMinBean, String>("result"));
         min_col_testplan_data = FXCollections.observableArrayList();
-        
+
         vdlType.setCellValueFactory(new PropertyValueFactory<DataVdlSummry, String>("valditionType"));
         vdlsrcCnt.setCellValueFactory(new PropertyValueFactory<DataVdlSummry, String>("srcCnt"));
         vdltrgCnt.setCellValueFactory(new PropertyValueFactory<DataVdlSummry, String>("trgCnt"));
         vdlResult.setCellValueFactory(new PropertyValueFactory<DataVdlSummry, String>("result"));
-        
+
         vdlLoadType.setCellValueFactory(new PropertyValueFactory<DataVdlSummry, String>("valditionType"));
         vdlLoadsrcCnt.setCellValueFactory(new PropertyValueFactory<DataVdlSummry, String>("srcCnt"));
         vdlLoadtrgCnt.setCellValueFactory(new PropertyValueFactory<DataVdlSummry, String>("trgCnt"));
         vdlLoadResult.setCellValueFactory(new PropertyValueFactory<DataVdlSummry, String>("result"));
-        
+
         src_data_Load = FXCollections.observableArrayList();
-        
+
         sqopJdbcUrl.setCellValueFactory(new PropertyValueFactory<SqoopBean, String>("sqopJdbcUrl"));
         sqopDriverclass.setCellValueFactory(new PropertyValueFactory<SqoopBean, String>("sqopDriverclass"));
         sqopUserName.setCellValueFactory(new PropertyValueFactory<SqoopBean, String>("sqopUserName"));
@@ -839,12 +822,8 @@ public class MainStageController implements Initializable {
         sqopMapper.setCellValueFactory(new PropertyValueFactory<SqoopBean, String>("sqopMapper"));
         sqopSplitBy.setCellValueFactory(new PropertyValueFactory<SqoopBean, String>("sqopSplitBy"));
         sqoopList = FXCollections.observableArrayList();
-        
-        sqopServerName.setCellValueFactory(new PropertyValueFactory<SqoopProcessBean, String>("sqoopHostName"));
-        sqopServerPath.setCellValueFactory(new PropertyValueFactory<SqoopProcessBean, String>("sqoopHostPath"));
-        sqoopCmd.setCellValueFactory(new PropertyValueFactory<SqoopProcessBean, String>("sqoopCmd"));
     }
-    
+
     public void dbRightClickMenuControl(TreeItem<String> nodeselect) {
         logger.info("DB Connection Context Menu is been Used");
         String nodename = nodeselect.getValue();
@@ -873,53 +852,53 @@ public class MainStageController implements Initializable {
 //
 //        } else {
         try {
-            
+
             if (nodename.equalsIgnoreCase("connections")) {
-                
+
                 dbrghtclkmenu.getItems().get(0).setDisable(false);
                 dbrghtclkmenu.getItems().get(1).setDisable(true);
                 dbrghtclkmenu.getItems().get(2).setDisable(true);
                 dbrghtclkmenu.getItems().get(3).setDisable(true);
                 dbrghtclkmenu.getItems().get(4).setDisable(true);
             }
-            
+
             if (nodename.contains("(#") && nodename.contains("#)")) {
-                
+
                 dbrghtclkmenu.getItems().get(0).setDisable(false);
                 dbrghtclkmenu.getItems().get(1).setDisable(true);
                 dbrghtclkmenu.getItems().get(2).setDisable(true);
                 dbrghtclkmenu.getItems().get(3).setDisable(false);
                 dbrghtclkmenu.getItems().get(4).setDisable(false);
             }
-            
+
             if (nodename.equalsIgnoreCase("Databases")) {
-                
+
                 dbrghtclkmenu.getItems().get(0).setDisable(false);
                 dbrghtclkmenu.getItems().get(1).setDisable(true);
                 dbrghtclkmenu.getItems().get(2).setDisable(true);
                 dbrghtclkmenu.getItems().get(3).setDisable(true);
                 dbrghtclkmenu.getItems().get(4).setDisable(true);
-                
+
             }
-            
+
             if (nodeselect.getParent().getValue().equalsIgnoreCase("Databases")) {
                 dbrghtclkmenu.getItems().get(0).setDisable(false);
                 dbrghtclkmenu.getItems().get(1).setDisable(true);
                 dbrghtclkmenu.getItems().get(2).setDisable(true);
                 dbrghtclkmenu.getItems().get(3).setDisable(true);
                 dbrghtclkmenu.getItems().get(4).setDisable(true);
-                
+
             }
-            
+
             if (nodeselect.getParent().getParent().getValue().equalsIgnoreCase("Databases")) {
                 dbrghtclkmenu.getItems().get(0).setDisable(false);
                 dbrghtclkmenu.getItems().get(1).setDisable(true);
                 dbrghtclkmenu.getItems().get(2).setDisable(true);
                 dbrghtclkmenu.getItems().get(3).setDisable(true);
                 dbrghtclkmenu.getItems().get(4).setDisable(true);
-                
+
             }
-            
+
             if (nodename.equalsIgnoreCase("Tables") || nodename.equalsIgnoreCase("Views")) {
                 dbrghtclkmenu.getItems().get(0).setDisable(false);
                 dbrghtclkmenu.getItems().get(1).setDisable(true);
@@ -927,30 +906,30 @@ public class MainStageController implements Initializable {
                 dbrghtclkmenu.getItems().get(3).setDisable(true);
                 dbrghtclkmenu.getItems().get(4).setDisable(true);
             }
-            
+
             if (nodeselect.getParent().getValue().equalsIgnoreCase("Tables") || nodeselect.getParent().getValue().equalsIgnoreCase("Views")) {
                 dbrghtclkmenu.getItems().get(0).setDisable(true);
                 dbrghtclkmenu.getItems().get(1).setDisable(false);
                 dbrghtclkmenu.getItems().get(2).setDisable(false);
                 dbrghtclkmenu.getItems().get(3).setDisable(true);
                 dbrghtclkmenu.getItems().get(4).setDisable(true);
-                
+
             }
-            
+
         } catch (Exception e) {
             logger.error("Execption Raised at DB right Click : " + e.toString());
         }
 //        }
 
     }
-    
+
     static boolean flag = false;
-    
+
     private void dbtree_SelectionChanged(TreeItem<String> nodeselect) {
-        
+
         logger.info("DB Connection Tree Selection Changed");
         this.nodeselect = nodeselect;
-        
+
         String nodename = nodeselect.getValue();
         String parent;
         if (!nodename.equalsIgnoreCase("connections")) {
@@ -966,7 +945,7 @@ public class MainStageController implements Initializable {
 
             //For schema list or db list 
             if (nodename.equalsIgnoreCase("databases")) {
-                
+
                 dbtype = parent.split("#")[1];
 
                 //get database based on dbtype
@@ -992,7 +971,7 @@ public class MainStageController implements Initializable {
                                 Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
-                        
+
                     } else {
                         try {
                             ct = new DBConnectionManager();
@@ -1018,13 +997,13 @@ public class MainStageController implements Initializable {
 
             //schema or db select
             if (nodeselect.getParent().getValue().equalsIgnoreCase("databases")) {
-                
+
                 parent = nodeselect.getParent().getParent().getValue();
-                
+
                 dbtype = parent.split("#")[1];
-                
+
                 if (dbtype.equalsIgnoreCase("SQL_SERVER")) {
-                    
+
                     try {
                         String dbname = nodeselect.getValue();
                         ct = new DBConnectionManager();
@@ -1044,34 +1023,34 @@ public class MainStageController implements Initializable {
                             Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                    
+
                 }
-                
+
             }
-            
+
             String parent1 = "";
             String dbname1 = "";
             try {
                 if (nodeselect.getParent().getParent().getParent().getParent().getValue().equalsIgnoreCase("databases")) {
-                    
+
                     parent1 = nodeselect.getParent().getParent().getParent().getParent().getParent().getValue();
                     dbname1 = nodeselect.getParent().getParent().getValue();
-                    
+
                 } else if (nodeselect.getParent().getParent().getParent().getValue().equalsIgnoreCase("databases")) {
-                    
+
                     parent1 = nodeselect.getParent().getParent().getParent().getParent().getValue();
                     dbname1 = nodeselect.getParent().getParent().getValue();
-                    
+
                 } else {
                     parent1 = nodeselect.getParent().getParent().getParent().getValue();
                     dbname1 = nodeselect.getParent().getValue();
-                    
+
                 }
 
                 //set dbtype
                 dbtype = parent1.split("#")[1];
                 System.out.println("dbtype : " + dbtype);
-                
+
             } catch (Exception e) {
                 logger.error(e.toString());
             }
@@ -1083,7 +1062,7 @@ public class MainStageController implements Initializable {
                         ct = new DBConnectionManager();
                         conn = ct.getDBConFromFile(parent1);
                         tablist = ct.getTableNames(conn, parent1, dbname1);
-                        
+
                         lctv.loadTableTreeView(tablist, nodeselect);
                     } catch (IOException | SQLException ex) {
                         logger.error(ex.toString());
@@ -1108,7 +1087,7 @@ public class MainStageController implements Initializable {
                         ct = new DBConnectionManager();
                         conn = ct.getDBConFromFile(nodeselect.getParent().getParent().getParent().getValue());
                         viewlist = ct.getViewNames(conn, nodeselect.getParent().getParent().getParent().getValue(), nodeselect.getParent().getValue());
-                        
+
                         lctv.loadTableTreeView(viewlist, nodeselect);
                     } catch (IOException | SQLException ex) {
                         logger.error(ex.toString());
@@ -1127,17 +1106,17 @@ public class MainStageController implements Initializable {
             }
         }
     }
-    
+
     private void fftree_SelectionChanged(TreeItem<String> nodeselect1) {
         logger.info("Selecting flat file");
         this.nodeselect1 = nodeselect1;
-        
+
         ffrghtclkmenu.getItems().get(0).setDisable(true);
         ffrghtclkmenu.getItems().get(1).setDisable(true);
         ffrghtclkmenu.getItems().get(2).setDisable(true);
         ffrghtclkmenu.getItems().get(3).setDisable(true);
         ffrghtclkmenu.getItems().get(4).setDisable(true);
-        
+
         String nodename = "";
         if (nodeselect1.getValue() == null) {
             nodename = "Flat Files";
@@ -1146,30 +1125,30 @@ public class MainStageController implements Initializable {
         }
         System.out.println("Selected Node :" + nodename);
         if (!nodename.equalsIgnoreCase("Flat Files") && !nodename.equalsIgnoreCase("TEXT") && !nodename.equalsIgnoreCase("CSV") && !nodename.equalsIgnoreCase("XML") && !nodename.equalsIgnoreCase("EXCEL") && !nodename.equalsIgnoreCase("JSON")) {
-            
+
             ffrghtclkmenu.getItems().get(0).setDisable(true);
             ffrghtclkmenu.getItems().get(1).setDisable(false);
             ffrghtclkmenu.getItems().get(2).setDisable(false);
             ffrghtclkmenu.getItems().get(3).setDisable(false);
             ffrghtclkmenu.getItems().get(4).setDisable(false);
-            
+
         } else if (nodename.equalsIgnoreCase("Flat Files") || nodename.equalsIgnoreCase("TEXT") || nodename.equalsIgnoreCase("CSV") || nodename.equalsIgnoreCase("XML") || nodename.equalsIgnoreCase("EXCEL") || nodename.equalsIgnoreCase("JSON")) {
-            
+
             ffrghtclkmenu.getItems().get(0).setDisable(false);
-            
+
         }
         logger.info("flat file selected ");
     }
-    
+
     @FXML
     private void dbaddSrcButtonAction(ActionEvent event) {
-        
+
         System.out.println("Clicked - DB Add Src Button");
         logger.info("Adding DB to Source");
         String tablename = "";
         String dbname = "";
         String connname = "";
-        
+
         if (tabmantesting.isSelected()) {
 //
 //            connname = nodeselect.getValue();
@@ -1184,7 +1163,7 @@ public class MainStageController implements Initializable {
                 dbname = nodeselect.getParent().getParent().getValue();
                 connname = nodeselect.getParent().getParent().getParent().getParent().getValue();
             }
-            
+
             tfsrcconname.setText(connname + "::" + dbname + "::" + tablename);
         } else {
             if (dbtype.equalsIgnoreCase("SQL_SERVER")) {
@@ -1196,23 +1175,23 @@ public class MainStageController implements Initializable {
                 dbname = nodeselect.getParent().getParent().getValue();
                 connname = nodeselect.getParent().getParent().getParent().getParent().getValue();
             }
-            
+
             tfsrcconname.setText(connname + "::" + dbname + "::" + tablename);
         }
         logger.info("DB has be added to Source: " + tfsrcconname);
     }
-    
+
     @FXML
     private void dbaddTrgButtonAction(ActionEvent event) {
-        
+
         System.out.println("Clicked - DB Add Trg Button");
         logger.info("Adding DB to Target");
         String tablename = "";
         String dbname = "";
         String connname = "";
-        
+
         if (tabmantesting.isSelected()) {
-            
+
             if (dbtype.equalsIgnoreCase("SQL_SERVER")) {
                 tablename = nodeselect.getValue();
                 dbname = nodeselect.getParent().getParent().getParent().getValue() + "." + nodeselect.getParent().getParent().getValue();
@@ -1222,9 +1201,9 @@ public class MainStageController implements Initializable {
                 dbname = nodeselect.getParent().getParent().getValue();
                 connname = nodeselect.getParent().getParent().getParent().getParent().getValue();
             }
-            
+
             tftrgconname.setText(connname + "::" + dbname + "::" + tablename);
-            
+
         } else {
             if (dbtype.equalsIgnoreCase("SQL_SERVER")) {
                 tablename = nodeselect.getValue();
@@ -1235,12 +1214,12 @@ public class MainStageController implements Initializable {
                 dbname = nodeselect.getParent().getParent().getValue();
                 connname = nodeselect.getParent().getParent().getParent().getParent().getValue();
             }
-            
+
             tftrgconname.setText(connname + "::" + dbname + "::" + tablename);
         }
         logger.info("DB has be added to Target: " + tftrgconname);
     }
-    
+
     @FXML
     private void dbConnEditButtonAction(ActionEvent event) {
         try {
@@ -1253,7 +1232,7 @@ public class MainStageController implements Initializable {
             Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     @FXML
     private void dbConnDeltButtonAction(ActionEvent event) throws IOException {
         System.out.println("Clicked - DB Conn Delete Button");
@@ -1262,7 +1241,7 @@ public class MainStageController implements Initializable {
         new LoadConnectionsTreeView(this.dbtreeview);
         logger.info("DB Connection Deleted");
     }
-    
+
     @FXML
     private void dbConnRefreshButtonAction(ActionEvent event) {
         System.out.println("Clicked - DB Conn Refresh Button");
@@ -1270,38 +1249,38 @@ public class MainStageController implements Initializable {
         new LoadConnectionsTreeView(this.dbtreeview);
         logger.info("DB Connection Refreshed");
     }
-    
+
     @FXML
     private void ffaddSrcButtonAction(ActionEvent event) {
-        
+
         System.out.println("Clicked - FF Add Src Button");
         logger.info("Adding Flat File to Source");
         try {
-            
+
             String filename = nodeselect1.getValue();
             String filetype = nodeselect1.getParent().getValue();
-            
+
             if (filetype.equalsIgnoreCase("text")) {
                 filetype = "txt";
             }
-            
+
             String connName = getSetFileName(filename, filetype, tfsrcconname);
             logger.info("Added Flat File to Source: " + connName);
         } catch (Exception ex) {
             logger.error(ex.toString());
             Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
             new ExceptionUI(ex);
-            
+
         }
-        
+
     }
-    
+
     @FXML
     private void ffaddTrgButtonAction(ActionEvent event) {
         System.out.println("Clicked - FF DB Add Trg Button");
         logger.info("Adding Flat File to Target");
         try {
-            
+
             String filename = nodeselect1.getValue();
             String filetype = nodeselect1.getParent().getValue();
             if (filetype.equalsIgnoreCase("text")) {
@@ -1314,38 +1293,33 @@ public class MainStageController implements Initializable {
             Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
             new ExceptionUI(ex);
         }
-        
+
     }
-    
+
     @FXML
     private void ffConnEditButtonAction(ActionEvent event) {
         System.out.println("Clicked - FF Conn Edit Button");
         new FlatFileConnectionUI(lfftv, mainvbox, nodeselect1.getValue());
     }
-    
+
     @FXML
     private void ffConnDeltButtonAction(ActionEvent event) throws IOException {
         System.out.println("Clicked - FF Conn Delete Button: " + nodeselect1.getParent().getValue().toLowerCase());
         Files.deleteIfExists(Paths.get("files/" + nodeselect1.getValue().toLowerCase().substring(nodeselect1.getValue().toLowerCase().lastIndexOf(".") + 1, nodeselect1.getValue().toLowerCase().length()) + "/" + nodeselect1.getValue()));
         new LoadFlatFilesTreeView(this.flatfilelist);
     }
-    
+
     @FXML
     private void ffConnRefreshButtonAction(ActionEvent event) {
         System.out.println("Clicked - FF Conn Refresh Button");
         new LoadFlatFilesTreeView(this.flatfilelist);
     }
-    
+
     @FXML
     private void automatedDataTabAction() {
         title.setText("Automated Loading");
         System.out.println("Clicked - Data Loading Tab Action");
         logger.info("Data Loading Tab Selected ");
-        srcLbl.setVisible(true);
-        trgLbl.setVisible(true);
-        headSptr.setVisible(true);
-        tfsrcconname.setVisible(true);
-        tftrgconname.setVisible(true);
         chktcnts.setDisable(true);
         chkncnts.setDisable(true);
         chknncnts.setDisable(true);
@@ -1360,40 +1334,12 @@ public class MainStageController implements Initializable {
         chkincrdata.setDisable(true);
         chkschtest.setDisable(true);
     }
-    
-    @FXML
-    private void sqoopTabAction() {
-        tfsrcconname.setVisible(false);
-        tftrgconname.setVisible(false);
-        title.setText("Sqoop Generation");
-        System.out.println("Clicked - Sqoop Generation Tab Action");
-        logger.info("Sqoop Generation Tab Selected");
-        chktcnts.setDisable(true);
-        chkncnts.setDisable(true);
-        chknncnts.setDisable(true);
-        chkdupcnts.setDisable(true);
-        chkdstcnts.setDisable(true);
-        chksumnum.setDisable(true);
-        chkmax.setDisable(true);
-        chkmin.setDisable(true);
-        chkfst1000.setDisable(true);
-        chklst1000.setDisable(true);
-        chkcmpltdata.setDisable(true);
-        chkincrdata.setDisable(true);
-        chkschtest.setDisable(true);
-        srcLbl.setVisible(false);
-        trgLbl.setVisible(false);
-        headSptr.setVisible(false);
-    }
-    
+
     @FXML
     private void manualTestTabAction() {
         title.setText("Manual Testing");
         System.out.println("Clicked - Manual Test Tab Action");
         logger.info("Manual Testing Tab Selected and Verifying Test scenarios ");
-        srcLbl.setVisible(true);
-        trgLbl.setVisible(true);
-        headSptr.setVisible(true);
         chktcnts.setDisable(true);
         chkncnts.setDisable(true);
         chknncnts.setDisable(true);
@@ -1407,20 +1353,13 @@ public class MainStageController implements Initializable {
         chkcmpltdata.setDisable(true);
         chkincrdata.setDisable(true);
         chkschtest.setDisable(true);
-        tfsrcconname.setVisible(true);
-        tftrgconname.setVisible(true);
     }
-    
+
     @FXML
     private void automatedTestTabAction() {
         title.setText("Automated Testing");
         System.out.println("Clicked - Automated Test Tab Action");
         logger.info("Automated Testing Tab Selected and Verifying Test scenarios ");
-        srcLbl.setVisible(true);
-        trgLbl.setVisible(true);
-        headSptr.setVisible(true);
-        tfsrcconname.setVisible(true);
-        tftrgconname.setVisible(true);
         chktcnts.setDisable(true);
         chkncnts.setDisable(true);
         chknncnts.setDisable(true);
@@ -1456,7 +1395,7 @@ public class MainStageController implements Initializable {
 //                filePath = new File(actualname);
                 connname.setText("FlatFile::" + from + "::" + actualname.replace("\\", "/"));
                 logger.info("Flat File Connection set : " + connname.getText());
-                
+
             } else {
                 String connectType = br.readLine();
                 String hostName = br.readLine();
@@ -1483,10 +1422,10 @@ public class MainStageController implements Initializable {
                 new ExceptionUI(ex);
             }
         }
-        
+
         return null;
     }
-    
+
     private void closeTab(Tab tab) {
         logger.info("Closing Test Tab: " + tab.getText());
         EventHandler<Event> handler = tab.getOnClosed();
@@ -1496,7 +1435,7 @@ public class MainStageController implements Initializable {
             tab.getTabPane().getTabs().remove(tab);
         }
     }
-    
+
     private void addTab(TabPane tabpane, Tab tab, int index) {
         EventHandler<Event> handler = tab.getOnClosed();
         if (null != handler) {
@@ -1506,7 +1445,7 @@ public class MainStageController implements Initializable {
             tabpane.getSelectionModel().select(tab);
         }
     }
-    
+
     private String srcRTmpPath, trgRTmpPath;
 
     //Download Remote file to process the ETL Testing Operations
@@ -1522,14 +1461,14 @@ public class MainStageController implements Initializable {
             fileTmp.mkdir();
             Files.createFile(Paths.get(metaDataPath));
         }
-        
+
         if (connType.getText().toLowerCase().contains("@")) {
-            
+
             List<String> fileConn = readFF(connName);
             File dir = new File(fileConn.get(3));
-            
+
             String trgPath = tmpPath + "/" + dir.getName();
-            
+
             List<String> rFileStats;
             if (checkFileDirExist("file", tmpPath, dir.getName())) {
                 readWriteRfileMetaData(metaDataPath, "read", dir.getName(), "");
@@ -1550,7 +1489,7 @@ public class MainStageController implements Initializable {
                 System.out.println("TrgPath: " + trgPath);
                 finalPath = trgPath;
             }
-            
+
         }
         logger.info("Remote Path set: " + finalPath);
         return finalPath;
@@ -1558,7 +1497,7 @@ public class MainStageController implements Initializable {
 
     //Method body to Read / Write properties to file
     private String readWriteRfileMetaData(String filePath, String processType, String key, String value) throws FileNotFoundException, IOException {
-        
+
         Properties metaProperties = new Properties();
         if (processType.equalsIgnoreCase("read")) {
             logger.info("Reading Meta Data for Key: " + key);
@@ -1577,10 +1516,10 @@ public class MainStageController implements Initializable {
     //
     //Download Remote file
     public List<String> getRemoteFiletoLocal(String hostName, int port, String userName, String password, String srcPath, String trgPath, Date oldTime) throws IOException, ParseException {
-        
+
         List<String> downloadStats = new ArrayList<>();
         FTPEngine fTPEngine = new FTPEngine(hostName, port, userName, password);
-        
+
         String newTime = fTPEngine.getRemoteModTimeStamp(srcPath);
         if (new SimpleDateFormat("yyyyMMddHHmmss").parse(newTime).after(oldTime)) {
             logger.info("Downloading the latest file from FTP ");
@@ -1593,7 +1532,7 @@ public class MainStageController implements Initializable {
             logger.info("No latest file found on FTP server using old file");
             downloadStats.add("false");
         }
-        
+
         return downloadStats;
     }
 
@@ -1601,7 +1540,7 @@ public class MainStageController implements Initializable {
     //searchType --> file / dir
     public boolean checkFileDirExist(String searchType, String filePath, String fileName) throws IOException {
         System.out.println("checkFileDirExist Called");
-        
+
         DirectoryScanner scanner = new DirectoryScanner();
         scanner.setIncludes(new String[]{fileName});
         scanner.setBasedir(filePath);
@@ -1613,22 +1552,22 @@ public class MainStageController implements Initializable {
         if (searchType.equalsIgnoreCase("dir")) {
             logger.info("Checking if Dir is present or not");
             dirs = scanner.getIncludedDirectories();
-            
+
             if (dirs.length == 1) {
-                
+
                 if (fileName.equalsIgnoreCase(dirs[0])) {
                     return true;
                 }
             } else if (dirs.length >= 1) {
                 for (String file : dirs) {
-                    
+
                     Files.delete(Paths.get(fileName));
                 }
             }
         } else {
             logger.info("Checking if files is present or not");
             files = scanner.getIncludedFiles();
-            
+
             if (files.length == 1) {
                 System.out.println("File: " + files[0]);
                 if (fileName.equalsIgnoreCase(files[0])) {
@@ -1638,23 +1577,23 @@ public class MainStageController implements Initializable {
             } else if (files.length >= 1) {
                 System.out.println("File: " + files);
                 for (String file : files) {
-                    
+
                     Files.delete(Paths.get(filePath + "/" + file));
                 }
             }
         }
-        
+
         return false;
     }
     String partition = "";
-    
+
     private String generateInsertQuery(String trgType, String dbName, String table) {
         partition = "";
         StringBuilder buffer = new StringBuilder();
         if (trgType.equalsIgnoreCase("oracle")) {
             buffer.append("insert all ");//.append(dbName).append(".").append(table);
         } else if (trgType.equalsIgnoreCase("oracle")) {
-            
+
             stmTransData.forEach(stmbean -> {
                 if (stmbean.getIncrementalCheck().equalsIgnoreCase("y")) {
                     partition = stmbean.getTargetColumnName();
@@ -1666,12 +1605,12 @@ public class MainStageController implements Initializable {
                 buffer.append("insert into ").append(dbName).append(".").append(table).append(" partition (").append(partition).append(") ");
             }
         } else {
-            
+
             buffer.append("insert into ").append(dbName).append(".").append(table).append(" ");
         }
-        
+
         StringBuilder columns = new StringBuilder();
-        
+
         for (int colIndex = 0; colIndex < stmTransData.size(); colIndex++) {
             if (colIndex == 0) {
                 columns.append(" (").append(stmTransData.get(colIndex).getTargetColumnName()).append(", ");
@@ -1681,45 +1620,45 @@ public class MainStageController implements Initializable {
                 columns.append(stmTransData.get(colIndex).getTargetColumnName()).append(",");
             }
         }
-        
+
         String colVal = "";
-        
+
         if (trgType.equalsIgnoreCase("oracle")) {
             colVal = "into " + dbName + "." + table + " " + columns.toString() + " values ";
         } else {
             colVal = columns.toString() + " values ";
         }
-        
+
         StringBuilder sqlValues = new StringBuilder();
         if (!trgType.equalsIgnoreCase("oracle")) {
-            
+
             sqlValues.append(colVal);
         }
         for (int i = 0; i < srcCmplResult.size(); i++) {
             if (trgType.equalsIgnoreCase("oracle")) {
-                
+
                 sqlValues.append(colVal);
             }
             sqlValues.append(" (");
             for (int j = 0; j < srcCmplResult.get(i).size(); j++) {
-                
+
                 if (j == srcCmplResult.get(i).size() - 1) {
-                    
+
                     if (stmTransData.get(j).getTargetColumnSpec().toLowerCase().contains("varchar") || stmTransData.get(j).getTargetColumnSpec().equalsIgnoreCase("String") || stmTransData.get(j).getTargetColumnSpec().equalsIgnoreCase("date")) {
-                        
+
                         sqlValues.append("\"").append(srcCmplResult.get(i).get(j)).append("\"").append(")");
-                        
+
                         if (trgType.equalsIgnoreCase("mysql") || trgType.equalsIgnoreCase("hive")) {
                             System.out.println("srcCmplResult.size(): " + srcCmplResult.size());
                             System.out.println("i: " + i);
                             if (!(i == srcCmplResult.size() - 1)) {
                                 sqlValues.append(",");
                             }
-                            
+
                         }
-                        
+
                     } else {
-                        
+
                         sqlValues.append(srcCmplResult.get(i).get(j)).append(")");
                         if (trgType.equalsIgnoreCase("mysql") || trgType.equalsIgnoreCase("hive")) {
                             if (!(i == srcCmplResult.size() - 1)) {
@@ -1727,30 +1666,30 @@ public class MainStageController implements Initializable {
                             }
                         }
                     }
-                    
+
                 } else {
                     if (stmTransData.get(j).getTargetColumnSpec().toLowerCase().contains("varchar") || stmTransData.get(j).getTargetColumnSpec().equalsIgnoreCase("String") || stmTransData.get(j).getTargetColumnSpec().equalsIgnoreCase("date")) {
                         sqlValues.append("\"").append(srcCmplResult.get(i).get(j)).append("\"").append(",");
-                        
+
                     } else {
                         sqlValues.append(srcCmplResult.get(i).get(j)).append(",");
                     }
                 }
-                
+
             }
         }
         if (trgType.equalsIgnoreCase("oracle")) {
             return buffer.toString() + " " + sqlValues + " select * from dual";
         }
-        
+
         return buffer.toString() + " " + sqlValues;
     }
     boolean getApproval = false;
-    
+
     private boolean getLoadApproval() {
-        
+
         Dialog dialogLoadAppr = new Dialog<>();
-        
+
         dialogLoadAppr.setTitle("Data Load Approval");
         dialogLoadAppr.setHeaderText("Would you link to process data to Target");
 
@@ -1768,365 +1707,35 @@ public class MainStageController implements Initializable {
             return null;
         });
         Optional<Pair<String, String>> result = dialogLoadAppr.showAndWait();
-        
+
         result.ifPresent(dbconstring -> {
             getApproval = true;
         });
         return getApproval;
     }
-    
+
     @FXML
     public void exitApplication(ActionEvent event) {
         logger.info("Closing & Exiting the application");
         try {
         } catch (Exception e) {
         }
-        
+
         Platform.exit();
     }
     String alertInfo;
     ObservableList trgList;
-    
-    @FXML
-    public void sqopClearButton() {
-        sqoopCmdTbl.getItems().clear();
-        sqpGenertor.setDisable(true);
-        sqpClear.setDisable(true);
-        sqpSave.setDisable(true);
-    }
-    
-    @FXML
-    public void sqopSaveButton() {
-        ObservableList processData = sqoopCmdTbl.getItems();
-        Stage mainstage = (Stage) mainvbox.getScene().getWindow();
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        FileChooser fc = new FileChooser();
-        File dirName = null;
-        
-        if (stmFile != null) {
-            String file = stmFile.getName();
-            String fileName = file.substring(0, file.lastIndexOf(".")) + "_results.xls";
-            dirName = directoryChooser.showDialog(mainstage);
-            if (dirName != null) {
-                resultsExport = dirName.getAbsolutePath() + "/" + fileName;
-            }
-            
-        } else {
-            dirName = fc.showOpenDialog(mainstage);
-            if (dirName != null) {
-                resultsExport = dirName.getAbsolutePath();
-            }
-        }
-        System.out.println(resultsExport + " :: " + stmFile.toString());
-        saveSqoopData(resultsExport, sqoopCmdTbl);
-        
-    }
-    
-    private void saveSqoopData(String fileName, TableView sqoopTblView) {
-        XSSFWorkbook wbook = new XSSFWorkbook();
-        XSSFSheet shSheet;
-        XSSFSheet tmpSheet;
-        FileOutputStream xlsFile = null;
-        if (fileName != null) //create excel sheet
-        {
-            try {
-                System.out.println("File: " + fileName);
-                xlsFile = new FileOutputStream(fileName);
-                shSheet = wbook.createSheet(new File(fileName).getName());
-                int mapIndex = 0;
-                int rowNum = 0;
-                
-                String[] colNames = {
-                    "Server Name", "Server File Name",
-                    "Sqoop Command"};
-                
-                Row row = shSheet.createRow(rowNum++);
-                for (int l = 0; l < colNames.length; l++) {
-//                            System.out.println("colName: " + colNames[l]);
-//                                jxl.write.Label labTemp = new jxl.write.Label(l, 0, colNames[l]);
-                    System.out.println("Object: " + colNames[l].toString());
-                    org.apache.poi.ss.usermodel.Cell cell = row.createCell(l);
-                    
-                    cell.setCellValue(colNames[l].toString());
-                    
-                }
-//                rowNum = 1;
-                ObservableList data = sqoopTblView.getItems();
-                System.out.println("Data: " + data.size());
-                for (int l = 0; l < data.size(); l++) {
-                    
-                    row = shSheet.createRow(rowNum++);
-                    String[] rowData = data.get(l).toString().split("#");
-                    for (int col = 0; col < rowData.length; col++) {
-                        
-                        org.apache.poi.ss.usermodel.Cell cell = row.createCell(col);
-                        System.out.println(rowData[col].toString());
-                        cell.setCellValue(rowData[col].toString());
-                        
-                    }
-//
-                }
-                
-                wbook.write(xlsFile);
-                wbook.close();
-                logger.info("Saved Test data to excel: " + xlsFile);
-                new AlertUI("Results Saved Successfully");
-                
-            } catch (IOException ex) {
-                Logger.getLogger(MainStageController.class
-                        .getName()).log(Level.SEVERE, null, ex);
-                logger.error(ex.toString());
-                new ExceptionUI(ex);
-                
-            }
-            
-        }
-        
-    }
-    
-    private ObservableList columnsList;
-    
-    ConnProperties connProp = null;
-    
-    @FXML
-    public void sqopRunButton() throws ClassNotFoundException, SQLException {
-        try {
-            connProp = new ConnProperties();
-            if (!sqoopList.isEmpty()) {
-                
-                QueryGenerator queryGenerator = new QueryGenerator();
-                for (SqoopBean sqoopBean : sqoopList) {
-                    
-                    DBConnectionManager dBConnectionManager = new DBConnectionManager(sqoopBean.getSqopDriverclass(), sqoopBean.getSqopJdbcUrl(), sqoopBean.getSqopUserName(), sqoopBean.getSqoopPasswd(), connProp.getPropertyValue("allJarpath"));
-                    sqoopBean.setSqopColmns(dBConnectionManager.getColNames(dBConnectionManager.getDBCon(), queryGenerator.getLimitQuery(sqoopBean.getSqopSrcSchema(), sqoopBean.getSqopSrcTbl(), "db", sqoopBean.getSqopDBType().toLowerCase())).toString().replaceAll("\\[", "").replaceAll("\\]", ""));
-                    dBConnectionManager.getDBCon().close();
-                    
-                }
-                HadoopCommonFunction hadoopCommonFunction = new HadoopCommonFunction();
-                
-                for (SqoopBean sqoopbean : sqoopList) {
-//                    processSqoopData(sqoopbean, hadoopCommonFunction);
-                    DBConnectionManager dBConnectionManager = new DBConnectionManager(sqoopbean.getSqopDriverclass(), sqoopbean.getSqopJdbcUrl(), sqoopbean.getSqopUserName(), sqoopbean.getSqoopPasswd(), connProp.getPropertyValue("allJarpath"));
-                    List keyList = dBConnectionManager.getKeyColNames(dBConnectionManager.getDBCon(), sqoopbean.getSqopSrcSchema(), sqoopbean.getSqopSrcTbl());
-                    Map<File, String> sqoopFileMap = new HashMap<>();
-                    sqoopFileMap.put(new File(System.getProperty("user.dir") + "/" + sqoopbean.getSqopTrgSchema() + "_" + sqoopbean.getSqopTrgTable() + "." + connProp.getPropertyValue("sqoopFileExtn")), hadoopCommonFunction.sqoopDataImport(sqoopbean.getSqopJdbcUrl(), sqoopbean.getSqopUserName(), sqoopbean.getSqoopPasswd(), "", sqoopbean.getSqopSrcSchema(), sqoopbean.getSqopSrcTbl(), sqoopbean.getSqopColmns(), !sqoopbean.getSqopSrcWhere().isEmpty() ? sqoopbean.getSqopSrcWhere() + "and \\$CONDITIONS" : "", sqoopbean.getSqopTrgSchema(), sqoopbean.getSqopTrgTable(), sqoopbean.getSqopTrgDir(), sqoopbean.getSqopSplitBy().isEmpty() || keyList.isEmpty() ? "1" : sqoopbean.getSqopMapper(), sqoopbean.getSqopFieldDelimt(), sqoopbean.getSqopLineDelimt(), !sqoopbean.getSqopTgtExist().equalsIgnoreCase("true"), "", "", true, true, "", sqoopbean.getSqopDriverclass(), sqoopbean.getSqopSplitBy(), new File(sqoopbean.getSqoopPasswd()).isFile() ? sqoopbean.getSqoopPasswd() : "", "", sqoopbean.getSqopDBType().equalsIgnoreCase("db2") ? true : false));
-                    sqoopbean.setFilePath(sqoopFileMap);
-                    sqoopFileList.add(sqoopFileMap);
-                }
-                
-                for (SqoopBean sqoopbean : sqoopList) {
-                    RemoteFileOps remoteFileOps = new RemoteFileOps(sqoopbean.getSqopSeverName(), sqoopbean.getSqopServerusrnme(), sqoopbean.getSqopServerpswd());
-                    File file = null;
-                    for (Map.Entry<File, String> fileName : sqoopbean.getFilePath().entrySet()) {
-                        file = fileName.getKey();
-                    }
-                    remoteFileOps.send(sqoopbean.getSqoopServerPath(), file.toString());
-                    
-                }
-                
-                sqoopList.forEach(bean -> {
-                    String sourceFile = "";
-                    String sqpCmd = "";
-                    for (Map.Entry<File, String> fileName : bean.getFilePath().entrySet()) {
-                        sqpCmd = fileName.getValue();
-                        sourceFile = fileName.getKey().getName();
-                    }
-                    
-                    SqoopProcessBean processBean = new SqoopProcessBean(bean.getSqopSeverName(), bean.getSqoopServerPath() + "/" + sourceFile, sqpCmd);
-                    processList.add(processBean);
-                });
-                
-                sqoopCmdTbl.setItems(processList);
-                
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
-            new ExceptionUI(ex);
-        }
-        
-    }
-    
-    ObservableList<Map<File, String>> sqoopFileList = FXCollections.observableArrayList();
-    
-    public void processSqoopData(SqoopBean sqoopbean, HadoopCommonFunction hadoopCommonFunction) {
-        Task task = new Task<Void>() {
-            @Override
-            public Void call() throws ClassNotFoundException, SQLException, Exception {
-                //non ui code
 
-                DBConnectionManager dBConnectionManager = new DBConnectionManager(sqoopbean.getSqopDriverclass(), sqoopbean.getSqopJdbcUrl(), sqoopbean.getSqopUserName(), sqoopbean.getSqoopPasswd(), connProp.getPropertyValue("allJarpath"));
-                List keyList = dBConnectionManager.getKeyColNames(dBConnectionManager.getDBCon(), sqoopbean.getSqopSrcSchema(), sqoopbean.getSqopSrcTbl());
-                Map<File, String> sqoopFileMap = new HashMap<>();
-                sqoopFileMap.put(new File(System.getProperty("user.dir") + "/" + sqoopbean.getSqopTrgSchema() + "_" + sqoopbean.getSqopTrgTable() + "." + connProp.getPropertyValue("sqoopFileExtn")), hadoopCommonFunction.sqoopDataImport(sqoopbean.getSqopJdbcUrl(), sqoopbean.getSqopUserName(), sqoopbean.getSqoopPasswd(), "", sqoopbean.getSqopSrcSchema(), sqoopbean.getSqopSrcTbl(), sqoopbean.getSqopColmns(), !sqoopbean.getSqopSrcWhere().isEmpty() ? sqoopbean.getSqopSrcWhere() + "and \\$CONDITIONS" : "", sqoopbean.getSqopTrgSchema(), sqoopbean.getSqopTrgTable(), sqoopbean.getSqopTrgDir(), sqoopbean.getSqopSplitBy().isEmpty() || keyList.isEmpty() ? "1" : sqoopbean.getSqopMapper(), sqoopbean.getSqopFieldDelimt(), sqoopbean.getSqopLineDelimt(), !sqoopbean.getSqopTgtExist().equalsIgnoreCase("true"), "", "", true, true, "", sqoopbean.getSqopDriverclass(), sqoopbean.getSqopSplitBy(), new File(sqoopbean.getSqoopPasswd()).isFile() ? sqoopbean.getSqoopPasswd() : "", "", sqoopbean.getSqopDBType().equalsIgnoreCase("db2") ? true : false));
-                sqoopbean.setFilePath(sqoopFileMap);
-                sqoopFileList.add(sqoopFileMap);
-//                        ObservableList totalResult = execueteTestPlan(total_cnt_testplan_data, item.toString(), total_cnt_testplan.get("Total_Cnt_Src_Testcase").toString(), total_cnt_testplan.get("Total_Cnt_Trg_Testcase").toString(), src_table, trg_table, srccon, trgcon, getSourceType(), getTargetType());
-                Platform.runLater(new Runnable() {
-                    public void run() {
-                        //ui code
-
-                        progstatus_label.setText("Executing Count Test Plan");
-                        progressLoadingImage();
-                        
-                    }
-                });
-                return null;
-            }
-        };
-        
-        task.setOnRunning(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                
-                progstatus_label.setText("Generating Sqoop Command");
-                progressLoadingImage();
-                
-            }
-        });
-        
-        task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                testResultSelect.setDisable(false);
-                progstatus_label.setText("Sqoop Command Generated");
-                progressCompletedImage();
-                resultSavebtn.setDisable(false);
-                resultClearbtn.setDisable(false);
-                
-            }
-            
-        });
-        
-        task.setOnFailed(
-                new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event
-            ) {
-                testResultSelect.setDisable(false);
-                progstatus_label.setText("Sqoop Generation Failed");
-                progressCompletedImage();
-                resultSavebtn.setDisable(false);
-                resultClearbtn.setDisable(false);
-//                        new ExceptionUI(ex);
-                Throwable throwable = task.getException();
-                Logger
-                        .getLogger(MainStageController.class
-                                .getName()).log(Level.SEVERE, null, throwable);
-                new ExceptionUI(new Exception(throwable.getMessage()));
-            }
-        }
-        );
-        
-        Thread t = new Thread(task);
-        
-        t.setDaemon(
-                true);
-        t.start();
-        
-    }
-    
-    public void sendFileToServer(SqoopBean sqoopbean) {
-        Task task = new Task<Void>() {
-            @Override
-            public Void call() throws ClassNotFoundException, SQLException, Exception {
-                //non ui code
-
-                RemoteFileOps remoteFileOps = new RemoteFileOps(sqoopbean.getSqopSeverName(), sqoopbean.getSqopServerusrnme(), sqoopbean.getSqopServerpswd());
-                File file = null;
-                for (Map.Entry<File, String> fileName : sqoopbean.getFilePath().entrySet()) {
-                    file = fileName.getKey();
-                }
-                remoteFileOps.send(sqoopbean.getSqoopServerPath(), file.toString());
-                
-                Platform.runLater(new Runnable() {
-                    public void run() {
-                        //ui code
-
-                        progstatus_label.setText("Loading file to server");
-                        progressLoadingImage();
-                        
-                    }
-                });
-                return null;
-            }
-        };
-        
-        task.setOnRunning(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                
-                progstatus_label.setText("Loading file to server");
-                progressLoadingImage();
-                
-            }
-        });
-        
-        task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                testResultSelect.setDisable(false);
-                progstatus_label.setText("File load to server");
-                progressCompletedImage();
-                resultSavebtn.setDisable(false);
-                resultClearbtn.setDisable(false);
-                
-            }
-        });
-        
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                testResultSelect.setDisable(false);
-                progstatus_label.setText("File Loading failed");
-                progressCompletedImage();
-                resultSavebtn.setDisable(false);
-                resultClearbtn.setDisable(false);
-//                        new ExceptionUI(ex);
-                Throwable throwable = task.getException();
-                Logger
-                        .getLogger(MainStageController.class
-                                .getName()).log(Level.SEVERE, null, throwable);
-                new ExceptionUI(new Exception(throwable.getMessage()));
-            }
-        });
-        
-        Thread t = new Thread(task);
-        t.setDaemon(true);
-        t.start();
-        
-    }
-    private ObservableList processList = FXCollections.observableArrayList();
-    
-    public void storeSqoopCmdatServer(ObservableList<Map<File, String>> sqoopList) throws IOException, FileNotFoundException {
-        
-        for (int i = 0; i < sqoopList.size(); i++) {
-            for (Map.Entry<File, String> entry : sqoopList.get(i).entrySet()) {
-                writeDatatoFile(entry.getKey(), entry.getValue());
-            }
-            
-        }
-        
-    }
-    
-    public void writeDatatoFile(File fileName, String fileData) throws FileNotFoundException, IOException {
-        logger.info("File Name: " + fileName.toString());
-        fileName.createNewFile();
-        FileOutputStream fos = new FileOutputStream(fileName);
-        fos.write(fileData.getBytes());
-        fos.close();
-        
-    }
-    
     @FXML
     public void autoLoadRunButtonAction() {
-        
+
         if (getLoadApproval()) {
             getApproval = false;
             logger.info("Processing to Load data from SRC to TRG");
             if (semiautotab.isSelected()) {
-                
-                System.out.println("s semiautotab");
-                
+
+                System.out.println("Selected semiautotab");
+
                 Task task = new Task<Void>() {
                     @Override
                     public Void call() throws SQLException, IOException, FileNotFoundException, ClassNotFoundException, Exception {
@@ -2146,14 +1755,14 @@ public class MainStageController implements Initializable {
                             System.out.println("Src Validation data :");
                             datasrcqry = datsrctranqry.getSrcDataValidationQuery(da, getTableNameFromUI("src").replaceAll("#", ""), getDBNameFromUI("src"), commonRuletxtar.getText().toLowerCase(), getSourceType(), stmComSplRule.get("source_key"), srcIncRule);
                         }
-                        
+
                         execueteTestPlan(src_data_Load, "tot_dat_val", datasrcqry, "", src_table, trg_table, null, null, getSourceType(), getTargetType());
-                        
+
                         if (!srcCmplResult.isEmpty()) {
                             String qry = generateInsertQuery(getDbTypeName("trg"), getDBNameFromUI("trg"), getTableNameFromUI("trg"));
                             System.out.println("Insert Query: \n" + qry);
                             logger.info("Data Count: " + srcCmplResult.size());
-                            
+
                             DBConnectionManager dBConnectionManager = new DBConnectionManager();
                             Connection conn = dBConnectionManager.getDBConFromFile(stmConData.get("*Target Host Name"));
                             if (conn != null) {
@@ -2164,25 +1773,25 @@ public class MainStageController implements Initializable {
                                 trgList = dBConnectionManager.getDataFromQuery(conn, trgQury);
 //                                    execueteTestPlan(src_data_Load, "tot_dat_val", trgQury, "", src_table, trg_table, null, null, getSourceType(), getTargetType());
                                 alertInfo = "Data has been inserted";
-                                
+
                             } else {
                                 new ConnectException("Unable to Connect to DB");
                             }
                         } else {
                             alertInfo = "No Data is available to Insert ";
                         }
-                        
+
                         Platform.runLater(new Runnable() {
                             public void run() {
-                                
+
                                 ObservableList dataVdlSmrydtls = FXCollections.observableArrayList();
                                 DataVdlSummry dataVdlSummry = new DataVdlSummry();
-                                
+
                                 dataVdlSummry.valditionType.set("Total Count");
                                 dataVdlSummry.srcCnt.setValue(Integer.toString(srcCmplResult.size()));
                                 dataVdlSummry.trgCnt.setValue(Integer.toString(Integer.parseInt(trgList.get(0).toString().replaceAll("\\[", "").replaceAll("\\]", ""))));
                                 dataVdlSummry.result.setValue((Integer.parseInt(dataVdlSummry.srcCnt.getValue()) == Integer.parseInt(dataVdlSummry.trgCnt.getValue())) ? "Passed" : "Failed");
-                                
+
                                 dataVdlSmrydtls.add(dataVdlSummry);
                                 dataLoadVdlSmry.setItems(dataVdlSmrydtls);
                                 DataValidationHighLighter(dataLoadVdlSmry);
@@ -2191,17 +1800,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Generating insert query Plan...");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -2212,36 +1821,34 @@ public class MainStageController implements Initializable {
                         new AlertUI(alertInfo);
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
             } else if (fullautotab.isSelected()) {
-                
+
                 System.out.println("Selected fullautotab");
-                
+
             }
-            
+
         }
     }
-    
+
     private List ll;  //Select Testcase
 
     public void getSeletcedTestCase() throws IOException, ParseException {
-        
+
         if (tfsrcconname.getText().toLowerCase().contains("flatfile")) {
             srcRTmpPath = getRemoteFile(tfsrcconname, "files/" + stmConData.get("*Source File Type (csv, txt etc)").toString().trim() + "/" + stmConData.get("*Source Host Name").toString().trim());
             System.out.println("SRC Path Received: " + srcRTmpPath);
@@ -2254,21 +1861,21 @@ public class MainStageController implements Initializable {
         }
         ll = getSelectedTestCases();
         System.out.println("Selected TestCases : " + ll);
-        
+
         List testplan = new ArrayList();
-        
+
         String[] da = this.getSrcTransRuleData(transDataTbl);
     }
-    
+
     @FXML
     public void autoResultRunButtonAction() {
-        
+
         try {
             getSeletcedTestCase();
             if (semiautotab.isSelected()) {
-                
+
                 System.out.println("Selected semiautotab");
-                
+
                 Task task = new Task<Void>() {
                     @Override
                     public Void call() throws SQLException, IOException, FileNotFoundException, ClassNotFoundException, Exception {
@@ -2282,17 +1889,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Generating Test Plan...");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -2300,48 +1907,43 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         //callProcessTestPlan(ll);
                         processTestPlan(ll);
-                        
+
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
             } else if (fullautotab.isSelected()) {
-                
+
                 System.out.println("Selected fullautotab");
-                
+
             }
         } catch (IOException ex) {
-            Logger.getLogger(MainStageController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
             new ExceptionUI(ex);
-            
         } catch (ParseException ex) {
-            Logger.getLogger(MainStageController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
             new ExceptionUI(ex);
         }
-        
+
     }
-    
+
     public List getSelectedTestCases() {
-        
+
         List testcaselist = new ArrayList();
-        
+
         String tmp = chktcnts.isSelected() ? "total_cnts" : "";
         testcaselist.add(tmp);
         tmp = chkncnts.isSelected() ? "null_cnts" : "";
@@ -2366,81 +1968,81 @@ public class MainStageController implements Initializable {
         testcaselist.add(tmp);
         tmp = chkincrdata.isSelected() ? "incr_dat_val" : "";
         testcaselist.add(tmp);
-        
+
         return testcaselist;
     }
-    
+
     public String getTableNameFromUI(String type) {
-        
+
         String tablename = "";
-        
+
         if (type.equalsIgnoreCase("src")) {
-            
+
             if (!tfsrcconname.getText().equalsIgnoreCase("") && !tfsrcconname.getText().contains("FlatFile")) {
-                
+
                 tablename = tfsrcconname.getText().split("::")[2];
-                
+
             } else if (tfsrcconname.getText().contains("FlatFile")) {
-                
+
                 tablename = tfsrcconname.getText().split("::")[2];
-                
+
                 File f = new File(tablename);
                 tablename = f.getName();
-                
+
             }
         } else if (type.equalsIgnoreCase("trg")) {
-            
+
             if (!tftrgconname.getText().equalsIgnoreCase("") && !tftrgconname.getText().contains("FlatFile")) {
-                
+
                 tablename = tftrgconname.getText().split("::")[2];
-                
+
             } else if (tftrgconname.getText().contains("FlatFile")) {
-                
+
                 tablename = tftrgconname.getText().split("::")[2];
                 System.out.println("tablename: " + tablename);
                 File f = new File(tablename);
                 tablename = f.getName();
-                
+
             }
-            
+
         }
-        
+
         return tablename;
     }
-    
+
     public String getConnNameFromUI(String type) {
-        
+
         String connname = "";
-        
+
         if (type.equalsIgnoreCase("src")) {
-            
+
             if (!tfsrcconname.getText().equalsIgnoreCase("") && !tfsrcconname.getText().contains("FlatFile")) {
                 connname = tfsrcconname.getText().split("::")[0];
             } else if (tfsrcconname.getText().contains("FlatFile")) {
                 System.out.println("Connetion: " + tfsrcconname);
                 connname = tfsrcconname.getText().split("::")[2];
-                
+
                 System.out.println("Connetion name: " + connname);
             }
         } else if (type.equalsIgnoreCase("trg")) {
-            
+
             if (!tftrgconname.getText().equalsIgnoreCase("") && !tftrgconname.getText().contains("FlatFile")) {
                 connname = tftrgconname.getText().split("::")[0];
             } else if (tftrgconname.getText().contains("FlatFile")) {
-                
+
                 connname = tftrgconname.getText().split("::")[2];
-                
+
             }
-            
+
         }
-        
+
         return connname;
     }
-    
+
     public String getDBNameFromUI(String type) {
-        
+
         String dbname = "";
-        
+
         if (type.equalsIgnoreCase("src")) {
             if (!tfsrcconname.getText().equalsIgnoreCase("") && !tfsrcconname.getText().contains("FlatFile")) {
                 dbname = tfsrcconname.getText().split("::")[1];
@@ -2451,21 +2053,21 @@ public class MainStageController implements Initializable {
         } else {
             if (!tftrgconname.getText().equalsIgnoreCase("") && !tftrgconname.getText().contains("FlatFile")) {
                 dbname = tftrgconname.getText().split("::")[1];
-                
+
             }
             if (!tftrgconname.getText().equalsIgnoreCase("") && tftrgconname.getText().contains("FlatFile")) {
-                
+
                 dbname = tftrgconname.getText().split("::")[2];
             }
         }
         System.out.println("DbName: " + dbname);
         return dbname;
     }
-    
+
     public String getDbTypeName(String type) {
         logger.info("DB MAP Type: " + type);
         String dbname = "";
-        
+
         if (type.equalsIgnoreCase("src")) {
             System.out.println("Source Type: " + dbname);
             if (!tfsrcconname.getText().equalsIgnoreCase("") && !tfsrcconname.getText().contains("FlatFile")) {
@@ -2477,7 +2079,7 @@ public class MainStageController implements Initializable {
                 dbname = "";
                 System.out.println("Source Type1: " + dbname);
             }
-            
+
         } else {
             if (!tftrgconname.getText().equalsIgnoreCase("") && !tftrgconname.getText().contains("FlatFile")) {
                 dbname = tftrgconname.getText().split("::")[0];
@@ -2485,41 +2087,41 @@ public class MainStageController implements Initializable {
             }
             if (!tftrgconname.getText().equalsIgnoreCase("") && tftrgconname.getText().contains("FlatFile")) {
                 dbname = "";
-                
+
             }
-            
+
         }
         System.out.println("DbNameType: " + dbname);
-        
+
         return dbname;
-        
+
     }
-    
+
     public String getSourceType() {
         if (tfsrcconname.getText().toLowerCase().contains("flatfile")) {
-            
+
             return "ff";
         } else {
             return "db";
         }
-        
+
     }
-    
+
     public String getTargetType() {
         if (tftrgconname.getText().toLowerCase().contains("flatfile")) {
             return "ff";
         } else {
             return "db";
         }
-        
+
     }
-    
+
     private String srcIncRule = "";
     private String trgIncRule = "";
-    
+
     private void getIncRule() {
         if ((incrementalCondition.size() == 2) && chkincrdata.isSelected()) {
-            
+
             trgIncRule = incrementalCondition.get(0);
             srcIncRule = incrementalCondition.get(1);
         } else if ((incrementalCondition.size() == 2) && tabdataload.isSelected()) {
@@ -2530,7 +2132,7 @@ public class MainStageController implements Initializable {
             srcIncRule = "";
         }
     }
-    
+
     private void generateTestplan(List ll) throws SQLException, IOException, FileNotFoundException, ClassNotFoundException, Exception {
 
         //total_cnts, null_cnts, not_null_cnts, dup_cnts, dst_cnts, sum_num_cols, max_cols, min_cols
@@ -2539,11 +2141,11 @@ public class MainStageController implements Initializable {
 //        System.out.println(this.getDBNameFromUI("src") + " : " + this.getTableNameFromUI("src"));
         getIncRule();
         if (src_table.length == 0 || trg_table.length == 0) {
-            
+
             new AlertUI("[ERROR] Missing Source / Target");
         } else {
             QueryGenerator qgen = new QueryGenerator();
-            
+
             total_cnt_testplan = new HashMap<String, String>();
             null_cnt_testplan = new HashMap<String, String>();
             notnull_cnt_testplan = new HashMap<String, String>();
@@ -2555,7 +2157,7 @@ public class MainStageController implements Initializable {
             cmpl_data_testplan = new HashMap<String, String>();
             try {
                 for (Object item : ll) {
-                    
+
                     if (item.toString().equals("total_cnts")) {
                         if (this.getSourceType().equalsIgnoreCase("ff")) {
                             System.out.println("DB Name: " + this.getDBNameFromUI("src"));
@@ -2576,9 +2178,9 @@ public class MainStageController implements Initializable {
 //                            }
                             System.out.println("SRC DB");
                             total_cnt_testplan.put("Total_Cnt_Src_Testcase", qgen.getTotalCntQueries(this.getDBNameFromUI("src"), this.getTableNameFromUI("src").replaceAll("#", ""), src_table[0], getSourceType(), "src", "", this.getDbTypeName("src"), srcIncRule));
-                            
+
                         }
-                        
+
                         System.out.println("DB Name: " + this.getDBNameFromUI("trg"));
                         if (this.getTargetType().equalsIgnoreCase("ff")) {
                             System.out.println("TRG FIle");
@@ -2589,13 +2191,13 @@ public class MainStageController implements Initializable {
                             //need to update qgen class
                             total_cnt_testplan.put("Total_Cnt_Trg_Testcase", qgen.getTotalCntQueries(this.getDBNameFromUI("trg"), this.getTableNameFromUI("trg"), src_table[0], getTargetType(), "trg", stmComSplRule.get("target_rule"), this.getDbTypeName("trg"), trgIncRule));
                         }
-                        
+
                         System.out.println("Count Test Plan :" + total_cnt_testplan);
-                        
+
                     }
-                    
+
                     if (item.toString().equals("null_cnts")) {
-                        
+
                         List testcase = new ArrayList();
                         System.out.println("Null Count Data:");
 
@@ -2614,13 +2216,13 @@ public class MainStageController implements Initializable {
                             //need to update qgen class
 
                         }
-                        
+
                         System.out.println("Null Count Test Plan :" + null_cnt_testplan);
-                        
+
                     }
-                    
+
                     if (item.toString().equals("not_null_cnts")) {
-                        
+
                         List testcase = new ArrayList();
                         System.out.println("Not Null Count Data:");
                         //src and trg
@@ -2637,13 +2239,13 @@ public class MainStageController implements Initializable {
                             //need to update qgen class
 
                         }
-                        
+
                         System.out.println("Not Null Count Test Plan :" + notnull_cnt_testplan);
-                        
+
                     }
-                    
+
                     if (item.toString().equals("dst_cnts")) {
-                        
+
                         List testcase = new ArrayList();
                         System.out.println("Distinct Count Data:");
                         //src and trg
@@ -2660,13 +2262,13 @@ public class MainStageController implements Initializable {
                             //need to update qgen class
 
                         }
-                        
+
                         System.out.println("Distinct Count Test Plan :" + dst_cnt_testplan);
-                        
+
                     }
-                    
+
                     if (item.toString().equals("dup_cnts")) {
-                        
+
                         List testcase = new ArrayList();
                         System.out.println("Duplicate Count Data:");
                         //src and trg
@@ -2682,13 +2284,13 @@ public class MainStageController implements Initializable {
                             //need to update qgen class
 
                         }
-                        
+
                         System.out.println("Duplicate Count Test Plan :" + dup_cnt_testplan);
-                        
+
                     }
-                    
+
                     if (item.toString().equals("max_cols")) {
-                        
+
                         List testcase = new ArrayList();
                         System.out.println("Max Count Data:");
                         //src and trg
@@ -2705,13 +2307,13 @@ public class MainStageController implements Initializable {
                             //need to update qgen class
 
                         }
-                        
+
                         System.out.println("Max of Col Test Plan :" + max_col_testplan.size());
-                        
+
                     }
-                    
+
                     if (item.toString().equals("min_cols")) {
-                        
+
                         List testcase = new ArrayList();
                         System.out.println("Min Count Data:");
                         //src and trg
@@ -2727,11 +2329,11 @@ public class MainStageController implements Initializable {
                             //need to update qgen class
 
                         }
-                        
+
                         System.out.println("Min of Col Test Plan :" + min_col_testplan);
-                        
+
                     }
-                    
+
                     if (item.toString().equals("sum_num_cols")) {
                         String trgType = "";
                         String srcType = "";
@@ -2745,7 +2347,7 @@ public class MainStageController implements Initializable {
                             System.out.println("Paths: " + srcRTmpPath);
                             csvengine = new CSVSQLEngine();
                             if (srcRTmpPath != null && !srcRTmpPath.isEmpty()) {
-                                
+
                                 srccon = csvengine.getFFConn(new File(srcRTmpPath).getParent());
                             } else {
                                 srccon = csvengine.getFFConn(new File(this.getDBNameFromUI("src")).getParent());
@@ -2753,29 +2355,29 @@ public class MainStageController implements Initializable {
                         } else {
                             srccon = dbConManager1.getDBConFromFile(stmConData.get("*Source Host Name"));
                         }
-                        
+
                         List colType = null;
                         SqlParser sqlParser = new SqlParser();
                         //src and trg
                         for (int i = 0; i < src_table.length; i++) {
-                            
+
                             if (!src_table[i].equalsIgnoreCase("#INPROGRESS")) {
-                                
+
                                 if (stmTransData.get(i).getSourceColumnSpec().isEmpty()) {
-                                    
+
                                     colType = dbConManager1.getColType(srccon, src_table[i]);
                                 } else {
-                                    
+
                                     colType = new ArrayList();
                                     colType.add(stmTransData.get(i).getSourceColumnSpec().trim());
                                 }
-                                
+
                                 if (colType.get(0).toString().toLowerCase().contains("number") || colType.get(0).toString().toLowerCase().contains("decimal") || colType.get(0).toString().toLowerCase().contains("integer")) {
-                                    
+
                                     sum_num_testplan.put("Sum_Col_Src_Testcase_" + i, qgen.getSumColQueries(this.getDBNameFromUI("src"), this.getTableNameFromUI("src").replaceAll("#", ""), src_table[i], this.getSourceType(), "src", colType.toString().replace("[", "").replace("]", ""), stmComSplRule.get("common_rule"), srcIncRule));
                                     sum_num_testplan.put("Sum_Col_Trg_Testcase_" + i, qgen.getSumColQueries(this.getDBNameFromUI("trg"), this.getTableNameFromUI("trg"), trg_table[i], this.getTargetType(), "trg", colType.toString().replace("[", "").replace("]", ""), stmComSplRule.get("target_rule"), trgIncRule));
                                 } else {
-                                    
+
                                     sum_num_testplan.put("Sum_Col_Src_Testcase_" + i, "");
                                     sum_num_testplan.put("Sum_Col_Trg_Testcase_" + i, "");
                                 }
@@ -2783,19 +2385,19 @@ public class MainStageController implements Initializable {
                                 sum_num_testplan.put("Sum_Col_Src_Testcase_" + i, "");
                                 sum_num_testplan.put("Sum_Col_Trg_Testcase_" + i, "");
                             }
-                            
+
                         }
-                        
+
                         System.out.println("Sum of Col Test Plan :" + sum_num_testplan);
-                        
+
                     }
-                    
+
                     if (item.toString().equals("tot_dat_val") || item.toString().equals("fst_1000_dat_val") || item.toString().equals("lst_1000_dat_val") || item.toString().equals("incr_dat_val")) {
                         System.out.println("Advance Count Data:");
                         String[] da = getSrcTransRuleData(transDataTbl);
-                        
+
                         STMDataValidationSrcQueryGenerator datsrctranqry = new STMDataValidationSrcQueryGenerator();
-                        
+
                         if (getTableNameFromUI("src").equalsIgnoreCase("#multiple_tables") || commonRuletxtar.getText().toLowerCase().contains("join")) {
                             /*
                              * Step to create query when data is fetched from
@@ -2813,36 +2415,36 @@ public class MainStageController implements Initializable {
                         } else {
                             System.out.println("Trg Validation data FF:");
                             datatrgqry = dattrgTranqry.getFinalDataSelectQuery(da, "\"" + this.getTableNameFromUI("trg") + "\"", stmComSplRule.get("target_rule"), stmComSplRule.get("target_key"), trgIncRule);
-                            
+
                         }
-                        
+
                         cmpl_data_testplan.put("Compl_Data_Src_Testcase", datasrcqry);
                         cmpl_data_testplan.put("Compl_Data_Trg_Testcase", datatrgqry);
                         System.out.println("Source Data validation Queries :" + datasrcqry);
                         System.out.println("Target Data validation Queries :" + datatrgqry);
-                        
+
                     }
-                    
+
                 }
-                
+
             } catch (JSQLParserException ex) {
-                
+
                 ex.printStackTrace();
                 new ExceptionUI(ex);
             }
         }
     }
-    
+
     public void progressCompletedImage() {
-        
+
         proggif_image.setImage(new Image(getClass().getResourceAsStream("/icon/progcmpleted.gif")));
-        
+
     }
-    
+
     public void progressLoadingImage() {
-        
+
         proggif_image.setImage(new Image(getClass().getResourceAsStream("/icon/proggif.gif")));
-        
+
     }
 
     //Method to execute and fetch the data of the test plan --Adithyathrows IOException, ClassNotFoundException, SQLException, Exception 
@@ -2866,7 +2468,7 @@ public class MainStageController implements Initializable {
                     srcResult = dbConManager.getDataFromQuery(srccon1, srcQuery);
                     trgResult = dbConManager.getDataFromQuery(trgcon1, trgQuery);
                     System.out.println("Got Data: ");
-                    
+
                 } //db to file
                 else if (srcType.equalsIgnoreCase("db") && trgType.equalsIgnoreCase("ff")) {
                     System.out.println(" DB and Flat File  Data fetching");
@@ -2874,14 +2476,14 @@ public class MainStageController implements Initializable {
                     srccon1 = dbConManager.getDBConFromFile(stmConData.get("*Source Host Name"));
                     srcResult = dbConManager.getDataFromQuery(srccon1, srcQuery);
                     csvengine = new CSVSQLEngine();
-                    
+
                     if (trgRTmpPath != null && !trgRTmpPath.isEmpty()) {
                         if (item.equals("dup_cnts")) {
                             trgResult = csvengine.getFFDuplicateCount(csvengine.getFFConn(new File(trgRTmpPath).getParent() + "?schema=" + FILEPATH), trgQuery);
                         } else {
                             trgResult = csvengine.getFFTableData(new File(trgRTmpPath).getParent() + "?schema=" + FILEPATH, trgQuery);
                         }
-                        
+
                     } else {
                         if (item.equals("dup_cnts")) {
                             trgResult = csvengine.getFFDuplicateCount(csvengine.getFFConn(new File(getDBNameFromUI("trg")).getParent() + "?schema=" + FILEPATH), trgQuery);
@@ -2889,7 +2491,7 @@ public class MainStageController implements Initializable {
                             trgResult = csvengine.getFFTableData(new File(getDBNameFromUI("trg")).getParent() + "?schema=" + FILEPATH, trgQuery);
                         }
                     }
-                    
+
                 }//file to db
                 else if (srcType.equalsIgnoreCase("ff") && trgType.equalsIgnoreCase("db")) {
                     System.out.println("Flat File and DB Data fetching");
@@ -2897,16 +2499,16 @@ public class MainStageController implements Initializable {
                     trgcon1 = dbConManager.getDBConFromFile(stmConData.get("*Target Host Name"));
                     trgResult = dbConManager.getDataFromQuery(trgcon1, trgQuery);
                     csvengine = new CSVSQLEngine();
-                    
+
                     if (srcRTmpPath != null && !srcRTmpPath.isEmpty()) {
-                        
+
                         if (item.equals("dup_cnts")) {
                             srcResult = csvengine.getFFDuplicateCount(csvengine.getFFConn(new File(srcRTmpPath).getParent() + "?schema=" + FILEPATH), srcQuery);
                         } else {
                             srcResult = csvengine.getFFTableData(new File(srcRTmpPath).getParent() + "?schema=" + FILEPATH, srcQuery);
                         }
                     } else {
-                        
+
                         if (item.equals("dup_cnts")) {
                             srcResult = csvengine.getFFDuplicateCount(csvengine.getFFConn(new File(getDBNameFromUI("src")).getParent() + "?schema=" + FILEPATH), srcQuery);
                         } else {
@@ -2917,14 +2519,14 @@ public class MainStageController implements Initializable {
                 else if (srcType.equalsIgnoreCase("ff") && trgType.equalsIgnoreCase("ff")) {
                     csvengine = new CSVSQLEngine();
                     System.out.println("Flat File Data Fetching");
-                    
+
                     if (trgRTmpPath != null && !trgRTmpPath.isEmpty()) {
                         if (item.equals("dup_cnts")) {
                             trgResult = csvengine.getFFDuplicateCount(csvengine.getFFConn(new File(trgRTmpPath).getParent() + "?schema=" + FILEPATH), trgQuery);
                         } else {
                             trgResult = csvengine.getFFTableData(new File(trgRTmpPath).getParent() + "?schema=" + FILEPATH, trgQuery);
                         }
-                        
+
                     } else {
                         if (item.equals("dup_cnts")) {
                             trgResult = csvengine.getFFDuplicateCount(csvengine.getFFConn(new File(getDBNameFromUI("trg")).getParent() + "?schema=" + FILEPATH), trgQuery);
@@ -2932,7 +2534,7 @@ public class MainStageController implements Initializable {
                             trgResult = csvengine.getFFTableData(new File(getDBNameFromUI("trg")).getParent() + "?schema=" + FILEPATH, trgQuery);
                         }
                     }
-                    
+
                     if (srcRTmpPath != null && !srcRTmpPath.isEmpty()) {
                         System.out.println("Src R TMp : " + srcRTmpPath);
                         if (item.equals("dup_cnts")) {
@@ -2949,13 +2551,13 @@ public class MainStageController implements Initializable {
                         }
                     }
                 }
-                
+
             } else {
                 if (srcType.equalsIgnoreCase("db")) {
                     dbConManager = new DBConnectionManager();
                     srccon1 = dbConManager.getDBConFromFile(stmConData.get("*Source Host Name"));
                     srcResult = dbConManager.getDataFromQuery(srccon1, srcQuery);
-                    
+
                 } else {
                     csvengine = new CSVSQLEngine();
                     if (srcRTmpPath != null && !srcRTmpPath.isEmpty()) {
@@ -2976,19 +2578,19 @@ public class MainStageController implements Initializable {
                 }
             }
             System.out.println("Item: " + item);
-            
+
             if (item.equals("total_cnts")) {
                 System.out.println("Total Count Data:");
-                
+
                 srcCnt = srcResult.get(0).toString().replaceAll("\\[", "").replaceAll("\\]", "");
                 trgCnt = trgResult.get(0).toString().replaceAll("\\[", "").replaceAll("\\]", "");
                 bean = new TotalCountBean();
                 bean.srcCnt.setValue(srcCnt);
                 bean.trgCnt.setValue(trgCnt);
                 bean.totCnt.setValue(bean.getSrcCnt().equals(bean.getTrgCnt()) ? "Passed" : "Failed");
-                
+
                 dataStore.add(bean);
-                
+
             } else if (item.equals("tot_dat_val") || item.equals("incr_dat_val")) {
                 //System.out.println("Src Data : " + srcResult.toString().replaceAll("\\[", "").replaceAll("\\]", ""));
                 //System.out.println("Target Data: " + trgResult.toString().replaceAll("\\[", "").replaceAll("\\]", ""));
@@ -2999,7 +2601,7 @@ public class MainStageController implements Initializable {
 //                dataStore.add(srcCmplResult);
 
             } else if (item.equals("dup_cnts")) {
-                
+
                 System.out.println("dup_cnts: " + srcResult.toString().replaceAll("\\[", "").replaceAll("\\]", ""));
                 System.out.println("dup_cnts: " + trgResult.toString().replaceAll("\\[", "").replaceAll("\\]", ""));
 //            srcCnt = srcResult.get(0).toString().replaceAll("\\[", "").replaceAll("\\]", "");
@@ -3016,7 +2618,7 @@ public class MainStageController implements Initializable {
                     int count = 0;
                     for (int i = 0; i < srcResult.size(); i++) {
                         System.out.println("Count: " + count);
-                        
+
                         System.out.println("SRC Value: " + srcResult.get(i).toString().replaceAll("\\[", "").replaceAll("\\]", ""));
                         System.out.println("Value: " + Integer.parseInt(srcResult.get(i).toString().replaceAll("\\[", "").replaceAll("\\]", "")));
                         count += Integer.parseInt(srcResult.get(i).toString().replaceAll("\\[", "").replaceAll("\\]", ""));
@@ -3028,7 +2630,7 @@ public class MainStageController implements Initializable {
                 } else {
                     src = srcResult.get(0).toString().replace("[", "").replace("]", "");
                 }
-                
+
                 String srcCol = "";
                 String srcColCal = sqlParser.getColumnNamefromQuery(srcQuery.replaceAll("/", "."));
                 if (this.getDbTypeName("trg").equalsIgnoreCase("bigquery")) {
@@ -3038,7 +2640,7 @@ public class MainStageController implements Initializable {
                 }
                 CountsMaxMinBean countsMaxMinBean = new CountsMaxMinBean();
                 countsMaxMinBean.srcCol.setValue(srcCol);
-                
+
                 countsMaxMinBean.srcColCount.setValue(src);
 //                countsMaxMinBean.srcColCount.setValue(srcResult.size() > 1 ? Integer.toString(srcResult.size()) : srcResult.get(0).toString());
 
@@ -3053,10 +2655,10 @@ public class MainStageController implements Initializable {
 //System.out.println("Target Col: "+trgCol);
                 String trg = "";
                 if (trgResult.size() > 1) {
-                    
+
                     int trgcount = 0;
                     for (int i = 0; i < trgResult.size(); i++) {
-                        
+
                         trgcount += Integer.parseInt(trgResult.get(i).toString().replaceAll("\\[", "").replaceAll("\\]", ""));
                     }
                     trg = Integer.toString(trgcount);
@@ -3068,9 +2670,9 @@ public class MainStageController implements Initializable {
 //            countsMaxMinBean.trgColCount.setValue(Integer.toString(Integer.parseInt(trgCnt) - Integer.parseInt(trgResult.toString().replaceAll("\\[", "").replaceAll("\\]", ""))));
                 countsMaxMinBean.trgColCount.setValue(trg);
                 countsMaxMinBean.result.setValue(countsMaxMinBean.getSrcColCount().equals(countsMaxMinBean.getTrgColCount()) ? "Passed" : "Failed");
-                
+
                 dataStore.add(countsMaxMinBean);
-                
+
             } else //if (!item.equals("dup_cnts") && !item.equals("tot_dat_val") && !item.equals("total_cnts")) {
             {
                 CountsMaxMinBean countsMaxMinBean = new CountsMaxMinBean();
@@ -3081,11 +2683,11 @@ public class MainStageController implements Initializable {
                 countsMaxMinBean.trgCol.setValue(sqlParser.getColumnNamefromQuery(trgQuery.replaceAll("/", ".")));
                 countsMaxMinBean.trgColCount.setValue(trgValue.isEmpty() ? "0" : trgValue);
                 countsMaxMinBean.result.setValue(countsMaxMinBean.getSrcColCount().equals(countsMaxMinBean.getTrgColCount()) ? "Passed" : "Failed");
-                
+
                 dataStore.add(countsMaxMinBean);
-                
+
             }
-            
+
         } catch (Exception ex) {
             throw ex;
         } finally {
@@ -3096,13 +2698,13 @@ public class MainStageController implements Initializable {
                 trgcon1.close();
             }
         }
-        
+
         return dataStore;
     }
 
 //Methods to call the executeTestPlan method to fetch the Data --Adithya
     public void processTestPlan(List checkOptionData) {
-        
+
         System.out.println("processTestPlan called");
 
 //      DBConnectionManager dbConManager = new DBConnectionManager();
@@ -3110,7 +2712,7 @@ public class MainStageController implements Initializable {
         Connection trgcon = null;//dbConManager.getDBConFromFile(stmConData.get("*Target Host Name"));
 
         for (Object item : checkOptionData) {
-            
+
             if (item.toString().equals("total_cnts")) {
                 //Calling the Plan Execution
 
@@ -3134,17 +2736,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Count Test Plan");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3153,10 +2755,10 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         resultSavebtn.setDisable(false);
                         resultClearbtn.setDisable(false);
-                        
+
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3167,22 +2769,20 @@ public class MainStageController implements Initializable {
                         resultClearbtn.setDisable(false);
 //                        new ExceptionUI(ex);
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
-                
+
             }
-            
+
             if (item.toString().equals("null_cnts")) {
                 totalCounts_null_tbl_view.getItems().clear();
-                
+
                 Task task = new Task<Void>() {
                     @Override
                     public Void call() throws ClassNotFoundException, SQLException, Exception {
@@ -3201,27 +2801,27 @@ public class MainStageController implements Initializable {
                                         totalCounts_null_tbl_view.setItems(null_cnt_testplan_data);
                                         progstatus_label.setText("Executing Null Test Plan");
                                         progressLoadingImage();
-                                        
+
                                     }
                                 });
-                                
+
                             }
-                            
+
                         }
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Null Test Plan");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3230,38 +2830,36 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         resultSavebtn.setDisable(false);
                         resultClearbtn.setDisable(false);
-                        
+
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
-                
+
             }
-            
+
             if (item.toString().equals("not_null_cnts")) {
                 totalCountsnot_null_tbl_view.getItems().clear();
-                
+
                 Task task = new Task<Void>() {
                     @Override
                     public Void call() throws ClassNotFoundException, SQLException, Exception {
                         //non ui code
                         System.out.println("Not null: ");
-                        
+
                         for (int j = 0; j < notnull_cnt_testplan.size() / 2; j++) {
                             //Calling the Plan Execution
                             if (!notnull_cnt_testplan.get("NotNull_Cnt_Src_Testcase_" + j).isEmpty()) {
@@ -3277,25 +2875,25 @@ public class MainStageController implements Initializable {
                                         progressLoadingImage();
                                     }
                                 });
-                                
+
                             }
                         }
-                        
+
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Not Null Test Plan");
                         progressLoadingImage();
                         System.out.println("Progress : " + task.getProgress());
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3304,7 +2902,7 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         resultSavebtn.setDisable(false);
                         resultClearbtn.setDisable(false);
-                        
+
                     }
                 });
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
@@ -3313,28 +2911,26 @@ public class MainStageController implements Initializable {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
             }
-            
+
             if (item.toString()
                     .equals("dst_cnts")) {
                 countDistinct_tbl_view.getItems().clear();
-                
+
                 Task task = new Task<Void>() {
                     @Override
                     public Void call() throws ClassNotFoundException, SQLException, Exception {
                         //non ui code
                         System.out.println("Distinct Test Plan: ");
-                        
+
                         for (int j = 0; j < dst_cnt_testplan.size() / 2; j++) {
                             //Calling the Plan Execution
 
@@ -3357,17 +2953,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Distinct Test Plan");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3376,37 +2972,35 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         resultSavebtn.setDisable(false);
                         resultClearbtn.setDisable(false);
-                        
+
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
             }
             if (item.toString()
                     .equals("dup_cnts")) {
-                
+
                 countDupli_tbl_view.getItems().clear();
                 Task task = new Task<Void>() {
                     @Override
                     public Void call() throws ClassNotFoundException, SQLException, Exception {
-                        
+
                         System.out.println("Dup Test Plan");
-                        
+
                         for (int j = 0; j < dup_cnt_testplan.size() / 2; j++) {
                             //Calling the Plan Execution
                             if (!dup_cnt_testplan.get("Dup_Cnt_Src_Testcase_" + j).isEmpty()) {
@@ -3421,7 +3015,7 @@ public class MainStageController implements Initializable {
                                         countDupli_tbl_view.setItems(dup_cnt_testplan_data);
                                         progstatus_label.setText("Executing Duplicate Test Plan");
                                         progressLoadingImage();
-                                        
+
                                     }
                                 });
                             }
@@ -3429,17 +3023,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Duplicate Test Plan");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3448,27 +3042,25 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         resultSavebtn.setDisable(false);
                         resultClearbtn.setDisable(false);
-                        
+
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
-                
+
             }
             if (item.toString()
                     .equals("sum_num_cols")) {
@@ -3478,7 +3070,7 @@ public class MainStageController implements Initializable {
                     public Void call() throws ClassNotFoundException, SQLException, Exception {
                         //non ui code
                         System.out.println("sum_num_testplan: " + sum_num_testplan.size() / 2);
-                        
+
                         for (int j = 0; j < sum_num_testplan.size() / 2; j++) {
                             //Calling the Plan Execution
                             if (!sum_num_testplan.get("Sum_Col_Src_Testcase_" + j).isEmpty()) {
@@ -3500,17 +3092,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Sum Test Plan");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3519,36 +3111,34 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         resultSavebtn.setDisable(false);
                         resultClearbtn.setDisable(false);
-                        
+
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
             }
             if (item.toString().equals("max_cols")) {
-                
+
                 max_tbl_view.getItems().clear();
-                
+
                 Task task = new Task<Void>() {
                     @Override
                     public Void call() throws ClassNotFoundException, SQLException, Exception {
                         System.out.println("Max Col: ");
-                        
+
                         for (int j = 0; j < max_col_testplan.size() / 2; j++) {
                             //Calling the Plan Execution
                             if (!max_col_testplan.get("Max_Col_Src_Testcase_" + j).isEmpty()) {
@@ -3560,7 +3150,7 @@ public class MainStageController implements Initializable {
                                         //ui code
 
                                         BasicTestResulTableRowHighlighter(max_tbl_view);
-                                        
+
                                         max_tbl_view.setItems(max_col_testplan_data);
                                         progstatus_label.setText("Executing Max Test Plan");
                                         progressLoadingImage();
@@ -3571,17 +3161,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Max Test Plan");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3590,38 +3180,36 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         resultSavebtn.setDisable(false);
                         resultClearbtn.setDisable(false);
-                        
+
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
             }
-            
+
             if (item.toString().equals("min_cols")) {
-                
+
                 min_tbl_view.getItems().clear();
-                
+
                 Task task = new Task<Void>() {
                     @Override
                     public Void call() throws ClassNotFoundException, SQLException, Exception {
                         //non ui code
                         System.out.println("Min Test Case: ");
-                        
+
                         for (int j = 0; j < min_col_testplan.size() / 2; j++) {
                             //Calling the Plan Execution
                             if (!min_col_testplan.get("Min_Col_Src_Testcase_" + j).isEmpty()) {
@@ -3633,9 +3221,9 @@ public class MainStageController implements Initializable {
                                         //ui code
 
                                         BasicTestResulTableRowHighlighter(min_tbl_view);
-                                        
+
                                         min_tbl_view.setItems(min_col_testplan_data);
-                                        
+
                                         progstatus_label.setText("Executing Min Test Plan");
                                         progressLoadingImage();
                                     }
@@ -3645,17 +3233,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Min Test Plan");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3664,23 +3252,21 @@ public class MainStageController implements Initializable {
                         progressCompletedImage();
                         resultSavebtn.setDisable(false);
                         resultSavebtn.setDisable(false);
-                        
+
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         new ExceptionUI(new Exception(throwable.getMessage()));
                     }
                 });
-                
+
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
@@ -3712,18 +3298,17 @@ public class MainStageController implements Initializable {
                                 sourceData_tbl_view.getColumns().clear();
                                 targetData_tbl_view.getItems().clear();
                                 targetData_tbl_view.getColumns().clear();
-                                
                                 setColumnsTableView(sourceData_tbl_view, Arrays.asList(getSourceColumnData()));
                                 setColumnsTableView(targetData_tbl_view, Arrays.asList(getTargetColumnData()));
-                                
+
                                 sourceData_tbl_view.setItems(srcCmplResult);
                                 targetData_tbl_view.setItems(trgCmplResult);
-                                
+
                                 unMatchsourceData_tbl_view.getItems().clear();
                                 unMatchtargetData_tbl_view.getItems().clear();
                                 unMatchsourceData_tbl_view.getColumns().clear();
                                 unMatchtargetData_tbl_view.getColumns().clear();
-                                
+
                                 setColumnsTableView(unMatchsourceData_tbl_view, Arrays.asList(getSourceColumnData()));
                                 setColumnsTableView(unMatchtargetData_tbl_view, Arrays.asList(getTargetColumnData()));
 //unMatchsourceData_tbl_view.setItems(FXCollections.observableArrayList(srcremovedList));
@@ -3742,17 +3327,17 @@ public class MainStageController implements Initializable {
                         return null;
                     }
                 };
-                
+
                 task.setOnRunning(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        
+
                         progstatus_label.setText("Executing Complete Test Plan");
                         progressLoadingImage();
-                        
+
                     }
                 });
-                
+
                 task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
@@ -3768,24 +3353,24 @@ public class MainStageController implements Initializable {
 //                        String d1 = "Total Count,"+srcCmplResult.size()+","+trgCmplResult.size()+"false";
 
                         DataVdlSummry dataVdlSummry = new DataVdlSummry();
-                        
+
                         dataVdlSummry.valditionType.set("Total Count");
                         dataVdlSummry.srcCnt.setValue(Integer.toString(srcCmplResult.size()));
                         dataVdlSummry.trgCnt.setValue(Integer.toString(trgCmplResult.size()));
                         dataVdlSummry.result.setValue((srcCmplResult.size() == trgCmplResult.size()) ? "Passed" : "Failed");
-                        
+
                         dataVdlSmrydtls.add(dataVdlSummry);
-                        
+
                         DataVdlSummry dataVdlSummry1 = new DataVdlSummry();
                         dataVdlSummry1.valditionType.set("UnMatched Count");
                         dataVdlSummry1.srcCnt.setValue(Integer.toString(unMatchsourceData_tbl_view.getItems().size()));
                         dataVdlSummry1.trgCnt.setValue(Integer.toString(unMatchsourceData_tbl_view.getItems().size()));
-                        
+
                         dataVdlSummry1.result.setValue((unMatchsourceData_tbl_view.getItems().size() == unMatchsourceData_tbl_view.getItems().size()) ? "Passed" : "Failed");
                         dataVdlSmrydtls.add(dataVdlSummry1);
-                        
+
                         dataVdlsmry.setItems(dataVdlSmrydtls);
-                        
+
                         DataValidationHighLighter(dataVdlsmry);
                         progstatus_label.setText("Execution Completed");
                         progressCompletedImage();
@@ -3793,31 +3378,29 @@ public class MainStageController implements Initializable {
                         resultClearbtn.setDisable(false);
                     }
                 });
-                
+
                 task.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent arg0) {
                         progstatus_label.setText("Failed with Exception");
                         progressCompletedImage();
                         Throwable throwable = task.getException();
-                        Logger
-                                .getLogger(MainStageController.class
-                                        .getName()).log(Level.SEVERE, null, throwable);
+                        Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                         System.out.println("Issue: " + cmpl_data_testplan.get("Compl_Data_Src_Testcase") + "  " + cmpl_data_testplan.get("Compl_Data_Trg_Testcase"));
                         new ExceptionUI(new Exception(throwable.getMessage()));
-                        
+
                     }
                 });
                 Thread t = new Thread(task);
                 t.setDaemon(true);
                 t.start();
-                
+
             }
-            
+
         }
-        
+
     }
-    
+
     private void incRulegenerator() {
         if (stmConData.get("*Load Strategy").toLowerCase().contains("incremental")) {
             incrementalCondition = stmData.getIncrementalCondition(this.getDbTypeName("src"), this.getDbTypeName("trg"));
@@ -3825,7 +3408,7 @@ public class MainStageController implements Initializable {
         } else {
             incrementalCondition = new ArrayList<>();
         }
-        
+
     }
 
     /*
@@ -3833,7 +3416,7 @@ public class MainStageController implements Initializable {
      */
     @FXML
     public void etlStmFileUploadBtn() {
-        
+
         System.out.println("etlStmFileUploadBtn called");
 
         //now focus to automated tab
@@ -3847,17 +3430,14 @@ public class MainStageController implements Initializable {
         System.out.println("File Path: " + stmFile);
 
         //File Validation
-        try {
-            if (stmFile != null) {
-                
-                if (!sqoopGenTab.isSelected()) {
-                    
-                    stmData = new STMExcellDataProcess(stmFile.toString());
-                    
-                    stmConData = stmData.getConnectionData();
-                    stmComSplRule = stmData.getComSpecialRule();
-                    stmTransData = stmData.getSTMTranData();
-                    stmSrcTranData = stmData.getSrcTranRuleqry();
+        if (stmFile != null) {
+            try {
+                stmData = new STMExcellDataProcess(stmFile.toString());
+
+                stmConData = stmData.getConnectionData();
+                stmComSplRule = stmData.getComSpecialRule();
+                stmTransData = stmData.getSTMTranData();
+                stmSrcTranData = stmData.getSrcTranRuleqry();
 //                if (stmConData.get("Load Strategy").toLowerCase().contains("incremental")) {
 //                    incrementalCondition = stmData.getIncrementalCondition(this.getDbTypeName("src"), this.getDbTypeName("trg"));
 //                    System.out.println("Data: " + incrementalCondition.get(0) + " :: " + incrementalCondition.get(1));
@@ -3865,78 +3445,47 @@ public class MainStageController implements Initializable {
 //                    incrementalCondition = new ArrayList<>();
 //                }
 //                System.out.println("Incremental Condition Size: " + incrementalCondition.size());
-                    stmData.getExecptionData(); //To get Execption
+                stmData.getExecptionData(); //To get Execption
 
-                    checkHostName(); //Checking the Host Name for STM 
-                    setSTMBasicsUI(); //Setting the Basics STM Details
+                checkHostName(); //Checking the Host Name for STM 
+                setSTMBasicsUI(); //Setting the Basics STM Details
 
-                    if (tabautotesting.isSelected()) {
-                        /*
-                         * Setting the Connection Data to the FX Fields
-                         * --Adithya 14-05-2017
-                         */
-                        
-                        if (!stmTransData.isEmpty() && !stmConData.isEmpty()) {
-                            
-                            transDataTbl.setItems(stmTransData); //Populating the STM Data
-                            incRulegenerator();
-                            autoresultrunbt.setDisable(false);
-                            
-                            setTestScenarios(false);
-                            
-                        }
-                    } else {
-                        logger.info("STM data");
-                        logger.info(stmTransData.toString());
-                        transDataLoadTbl.setItems(stmTransData);
-                        commonRuletxtarLoad.setText(stmComSplRule.get("common_rule").toString().trim());
-                        sourceKeyColtxtarLoad.setText(stmComSplRule.get("source_key").toString().trim());
-                        targetKeyColtxtarLoad.setText(stmComSplRule.get("target_key").toString().trim());
-                        stm_conTitle_txt_fieldLoad.setText(stmConData.get("*Title").toString());
-                        stm_conAut_txt_fieldLoad.setText(stmConData.get("*Author").toString());
-                        stm_conVer_txt_fieldLoad.setText(stmConData.get("Version & History").toString());
-                        autoLoadbtn.setDisable(false);
-                        incRulegenerator();
-                    }
-                    
-                } else {
+                if (tabautotesting.isSelected()) {
                     /*
-                     * Sqoop Cmd Generator
+                     * Setting the Connection Data to the FX Fields --Adithya
+                     * 14-05-2017
                      */
-                    logger.info("Fetching data from " + stmFile);
-                    sqoopExcellDataProcess = new SqoopExcellDataProcess(stmFile.toString());
-                    sqoopList = sqoopExcellDataProcess.getSqopList();
-                    
-                    if (!sqoopList.isEmpty()) {
-                        if (sqoopExcellDataProcess.getExceptionData().length() == 0) {
-                            sqp_conTitle_txt_fieldLoad.setText(sqoopExcellDataProcess.getTitle());
-                            sqp_conAut_txt_fieldLoad.setText(sqoopExcellDataProcess.getAuthor());
-                            sqp_conVer_txt_fieldLoad.setText(sqoopExcellDataProcess.getVersion());
-                            
-                            System.out.println("Sqoop List: " + sqoopList);
-                            sqopTblView.setItems(sqoopList);
-                            sqpGenertor.setDisable(false);
-                            
-                        } else {
-                            System.out.println("Exception Raised");
-                            throw new Exception(sqoopExcellDataProcess.getExceptionData().toString());
-                        }
-                    } else {
-                        throw new Exception("No Sqoop Data Available");
-                        
+
+                    if (!stmTransData.isEmpty() && !stmConData.isEmpty()) {
+
+                        transDataTbl.setItems(stmTransData); //Populating the STM Data
+                        incRulegenerator();
+                        autoresultrunbt.setDisable(false);
+
+                        setTestScenarios(false);
+
                     }
+                } else {
+                    logger.info("STM data");
+                    logger.info(stmTransData.toString());
+                    transDataLoadTbl.setItems(stmTransData);
+                    commonRuletxtarLoad.setText(stmComSplRule.get("common_rule").toString().trim());
+                    sourceKeyColtxtarLoad.setText(stmComSplRule.get("source_key").toString().trim());
+                    targetKeyColtxtarLoad.setText(stmComSplRule.get("target_key").toString().trim());
+                    stm_conTitle_txt_fieldLoad.setText(stmConData.get("*Title").toString());
+                    stm_conAut_txt_fieldLoad.setText(stmConData.get("*Author").toString());
+                    stm_conVer_txt_fieldLoad.setText(stmConData.get("Version & History").toString());
+                    autoLoadbtn.setDisable(false);
+                    incRulegenerator();
                 }
+            } catch (Exception ex) {
+                Logger.getLogger(MainStageController.class
+                        .getName()).log(Level.SEVERE, null, ex);
+                new ExceptionUI(ex);
             }
-        } catch (Exception ex) {
-            Logger.getLogger(MainStageController.class
-                    .getName()).log(Level.SEVERE, null, ex);
-            new ExceptionUI(ex);
+
         }
     }
-    private SqoopExcellDataProcess sqoopExcellDataProcess;
-    
-    @FXML
-    TextField sqp_conTitle_txt_fieldLoad, sqp_conAut_txt_fieldLoad, sqp_conVer_txt_fieldLoad;
 
     /*
      * Logic for Dynamic Test scenarios
@@ -3963,15 +3512,15 @@ public class MainStageController implements Initializable {
      */
     public void setColumnsTableView(TableView tableView, List tableColumns) {
         System.out.println("setTableView method Called");
-        
+
         for (Object colname : tableColumns) {
-            
+
             tabPane_tbl_columns = new TableColumn(colname.toString());
-            
+
             final int j = tableColumns.indexOf(colname);
-            
+
             tableView.getColumns().add(tabPane_tbl_columns);
-            
+
             tabPane_tbl_columns.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
                     final int j = tableColumns.indexOf(colname);
@@ -3979,14 +3528,14 @@ public class MainStageController implements Initializable {
                     return new SimpleStringProperty(val);
                 }
             });
-            
+
         }
     }
 
     //table clear function
     @FXML
     public void stmTblClear() {
-        
+
         System.out.println("stmTblClear called");
         transDataTbl.getItems().clear();
         tfsrcconname.clear();
@@ -3994,14 +3543,14 @@ public class MainStageController implements Initializable {
         stm_conTitle_txt_field.clear();
         stm_conAut_txt_field.clear();
         stm_conVer_txt_field.clear();
-        
+
         commonRuletxtar.clear();
         sourceKeyColtxtar.clear();
         targetKeyColtxtar.clear();
         autoresultrunbt.setDisable(true);
         resultSavebtn.setDisable(true);
         resultClearbtn.setDisable(true);
-        
+
         sourceData_tbl_view.getItems().clear();
         targetData_tbl_view.getItems().clear();
         unMatchsourceData_tbl_view.getItems().clear();
@@ -4010,9 +3559,9 @@ public class MainStageController implements Initializable {
         progressCompletedImage();
 //        dataValid_status_lbl.setText("Nothing to show");
         testResultSelect.setDisable(true);
-        
+
     }
-    
+
     private void setConnName(TextField connPoint, String connName, String dbName, String tableName, String connType) throws FileNotFoundException, IOException {
         System.out.println("Textfiled: " + connPoint);
         System.out.println("connName: " + connName);
@@ -4023,18 +3572,18 @@ public class MainStageController implements Initializable {
             //Processing DB Connection Name
             if (dbName.isEmpty() || tableName.isEmpty()) {
                 List<String> connData = readFF("conn/" + connName + ".con");
-                
+
                 connPoint.setText(connName + "::" + connData.get(1).substring(connData.get(1).lastIndexOf("/") + 1, connData.get(1).length()) + "::#MULTIPLETABLES");
             } else {
-                
+
                 connPoint.setText(connName + "::" + dbName + "::" + tableName);
             }
-            
+
         } else {
             //Processing File Connection name
 
             List connData = readFF("files/" + connType.toLowerCase() + "/" + connName);
-            
+
             if (connData.get(0).toString().equalsIgnoreCase("local")) {
 //                File fileName = new File(connData.get(1).toString().trim());
 //                System.out.println("File Name: " + fileName.getParent());
@@ -4055,7 +3604,7 @@ public class MainStageController implements Initializable {
 //                connPoint.setText("FlatFile::" + connectType + "@" + hostName + "::" +fileSchema+ "::" + fileName.getName());
                 connPoint.setText("FlatFile::" + connectType + "@" + hostName + "::" + connData.get(3).toString());
             }
-            
+
         }
     }
 
@@ -4102,32 +3651,32 @@ public class MainStageController implements Initializable {
                 exceptionValue.append((++i) + ". " + stmConData.get("*Target Host Name").toString() + " DB Connection not found\n");
             }
         }
-        
+
         if (stmConData.get("*Source File Type (csv, txt etc)").toString().equalsIgnoreCase("db")) {
             File f = new File("conn/" + stmConData.get("*Source Host Name").toString() + ".con");
             if (!f.exists() && !f.isFile()) {
                 exceptionValue.append((++i) + ". " + stmConData.get("*Source Host Name").toString() + " DB Connection not found\n");
             }
         }
-        
+
         if (!stmConData.get("*Target File Type (csv, txt etc)").toString().equalsIgnoreCase("db"))//&& stmConData.get("Source File Type (csv, txt etc)").toString().equalsIgnoreCase("db")) {
         {
             File f = new File("files/" + stmConData.get("*Target File Type (csv, txt etc)").toString().toLowerCase() + "/" + stmConData.get("*Target Host Name").toString());
             if (!f.exists() && !f.isFile()) {
                 System.out.println("File Path: " + f.toString());
                 exceptionValue.append((++i) + ". " + stmConData.get("*Target Host Name").toString() + " File not found\n");
-                
+
             }
         }
-        
+
         if (!stmConData.get("*Source File Type (csv, txt etc)").toString().equalsIgnoreCase("db")) {
             File f = new File("files/" + stmConData.get("*Source File Type (csv, txt etc)").toString().toLowerCase() + "/" + stmConData.get("*Source Host Name").toString());
             if (!f.exists() && !f.isFile()) {
                 exceptionValue.append((++i) + ". " + stmConData.get("*Source Host Name").toString() + " File not found\n");
-                
+
             }
         }
-        
+
         if (!exceptionValue.toString().isEmpty()) {
             String exceptionData = exceptionValue.toString();
             exceptionValue.delete(0, exceptionValue.length());
@@ -4137,35 +3686,35 @@ public class MainStageController implements Initializable {
                 throw new Exception("Invalid Connection Data in the STM \n" + exceptionData.toString());
             }
         }
-        
+
     }
 
     //Getting the Target columns from the STM
     public String[] getTargetColumnData() {
-        
+
         System.out.println("getTargetColumnData called");
-        
+
         ObservableList<STMBean> sblist = transDataTbl.getItems();
         String[] trgColData = new String[sblist.size()];
         int i = 0;
         for (STMBean sb : sblist) {
             trgColData[i++] = sb.getTargetColumnName();
         }
-        
+
         return trgColData;
     }
-    
+
     public String[] getSourceColumnData() {
-        
+
         System.out.println("getTargetColumnData called");
-        
+
         ObservableList<STMBean> sblist = transDataTbl.getItems();
         String[] srcColData = new String[sblist.size()];
         int i = 0;
         for (STMBean sb : sblist) {
             srcColData[i++] = sb.getTargetColumnName() + "_src";
         }
-        
+
         return srcColData;
     }
 
@@ -4173,7 +3722,7 @@ public class MainStageController implements Initializable {
     public String[] getSrcTransRuleData(TableView tableView) {
         System.out.println("getSrcTransRuleData called");
         ObservableList<STMBean> sblist = tableView.getItems();
-        
+
         String[] srcTransData = new String[sblist.size()];
         int i = 0;
         for (STMBean sb : sblist) {
@@ -4186,14 +3735,14 @@ public class MainStageController implements Initializable {
                 } else {
                     srcTransData[i++] = sb.getColumnTransRule();//+ " \n " + commonRuletxtar.getText();
                 }
-                
+
             } else {
                 srcTransData[i++] = sb.getColumnTransRule();
-                
+
             }
-            
+
         }
-        
+
         return srcTransData;
     }
 
@@ -4205,7 +3754,7 @@ public class MainStageController implements Initializable {
         } else {
             unselectedCheckBoxes.add(checkBox);
         }
-        
+
         checkBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             if (isNowSelected) {
                 unselectedCheckBoxes.remove(checkBox);
@@ -4214,9 +3763,9 @@ public class MainStageController implements Initializable {
                 selectedCheckBoxes.remove(checkBox);
                 unselectedCheckBoxes.add(checkBox);
             }
-            
+
         });
-        
+
     }
 
     //Method to Highlight the row based on the result for Total Counts    
@@ -4225,9 +3774,9 @@ public class MainStageController implements Initializable {
             @Override
             public void updateItem(TotalCountBean item, boolean empty) {
                 super.updateItem(item, empty);
-                
+
                 if (item == null || empty) {
-                    
+
                     setStyle("");
                 } else {
                     //Now 'item' has all the info of the Person in this row
@@ -4236,13 +3785,13 @@ public class MainStageController implements Initializable {
                         //We apply now the changes in all the cells of the row
                         //setStyle("-fx-background-color: #ff9999");
                         setStyle("-fx-background-color: red");
-                        
+
                     }
-                    
+
                 }
             }
         });
-        
+
     }
 
     //Method to Highlight the row based on the result for Basic Testing scenarios execpt Total Counts    
@@ -4251,7 +3800,7 @@ public class MainStageController implements Initializable {
             @Override
             public void updateItem(CountsMaxMinBean item, boolean empty) {
                 super.updateItem(item, empty);
-                
+
                 if (item == null || empty) {
                     setStyle("");
                 } else {
@@ -4261,22 +3810,22 @@ public class MainStageController implements Initializable {
                         //We apply now the changes in all the cells of the row
                         //setStyle("-fx-background-color: #ff9999");
                         setStyle("-fx-background-color: red");
-                        
+
                     } else {
                         setStyle("");
                     }
                 }
             }
         });
-        
+
     }
-    
+
     public void DataValidationHighLighter(TableView tblview) {
         tblview.setRowFactory(row -> new TableRow<DataVdlSummry>() {
             @Override
             public void updateItem(DataVdlSummry item, boolean empty) {
                 super.updateItem(item, empty);
-                
+
                 if (item == null || empty) {
                     setStyle("");
                 } else {
@@ -4286,14 +3835,14 @@ public class MainStageController implements Initializable {
                         //We apply now the changes in all the cells of the row
                         //setStyle("-fx-background-color: #ff9999");
                         setStyle("-fx-background-color: red");
-                        
+
                     } else {
                         setStyle("");
                     }
                 }
             }
         });
-        
+
     }
 
     //Method to Highlight the row based on the result for Summary Testing scenarios execpt Total Counts    
@@ -4302,7 +3851,7 @@ public class MainStageController implements Initializable {
             @Override
             public void updateItem(ManualSummaryBean item, boolean empty) {
                 super.updateItem(item, empty);
-                
+
                 if (item == null || empty) {
                     setStyle("");
                 } else {
@@ -4312,16 +3861,16 @@ public class MainStageController implements Initializable {
                         //We apply now the changes in all the cells of the row
                         //setStyle("-fx-background-color: #ff9999");
                         setStyle("-fx-background-color: red");
-                        
+
                     } else {
                         setStyle("");
                     }
                 }
             }
         });
-        
+
     }
-    
+
     @FXML
     public void clearResultButton(ActionEvent ae) {
         logger.info("Clearing Data verification Tables");
@@ -4330,14 +3879,14 @@ public class MainStageController implements Initializable {
         for (Map.Entry<String, TableView> entry : resultTableList1.entrySet()) {
             String key = entry.getKey();
             TableView value = entry.getValue();
-            
+
             value.getItems().clear();
-            
+
         }
-        
+
         resultSavebtn.setDisable(true);
         resultClearbtn.setDisable(true);
-        
+
         progstatus_label.setText("Let's Get Started");
         dataVdlsmry.getItems().clear();
         progressCompletedImage();
@@ -4354,41 +3903,41 @@ public class MainStageController implements Initializable {
             if (checkOption.equals("total_cnts")) {
                 resultTableList.put("total_cnts", totalCounts_tbl_view);
             }
-            
+
             if (checkOption.toString().equals("null_cnts")) {
                 resultTableList.put("null_cnts", totalCounts_null_tbl_view);
             }
-            
+
             if (checkOption.toString().equals("not_null_cnts")) {
                 resultTableList.put("not_null_cnts", totalCountsnot_null_tbl_view);
             }
-            
+
             if (checkOption.toString()
                     .equals("dst_cnts")) {
                 resultTableList.put("dst_cnts", countDistinct_tbl_view);
-                
+
             }
-            
+
             if (checkOption.toString()
                     .equals("dup_cnts")) {
                 resultTableList.put("dup_cnts", countDupli_tbl_view);
             }
-            
+
             if (checkOption.toString()
                     .equals("max_cols")) {
                 resultTableList.put("max_cols", max_tbl_view);
             }
-            
+
             if (checkOption.toString()
                     .equals("min_cols")) {
                 resultTableList.put("min_cols", min_tbl_view);
             }
-            
+
             if (checkOption.toString()
                     .equals("sum_num_cols")) {
                 resultTableList.put("sum_num_cols", countNumerics_tbl_view);
             }
-            
+
             if (checkOption.toString()
                     .equals("tot_dat_val")) {
                 resultTableList.put("cmpl_data_src", sourceData_tbl_view);
@@ -4397,7 +3946,7 @@ public class MainStageController implements Initializable {
                 resultTableList.put("cmpl_un_data_trg", unMatchtargetData_tbl_view);
                 resultTableList.put("cmpl_vdl_summary", dataVdlsmry);
             }
-            
+
         }
         logger.info("Selected the Test Scenarios");
         return resultTableList;
@@ -4409,65 +3958,65 @@ public class MainStageController implements Initializable {
         logger.info("Loading Test Scenarios to data saving or for other data");
         for (Object checkOption : checkOptions) {
             if (checkOption.equals("total_cnts")) {
-                
+
                 resultTableListData.put("total_cnts", total_cnt_testplan_data);
             }
-            
+
             if (checkOption.toString().equals("null_cnts")) {
-                
+
                 resultTableListData.put("null_cnts", null_cnt_testplan_data);
             }
-            
+
             if (checkOption.toString().equals("not_null_cnts")) {
-                
+
                 resultTableListData.put("not_null_cnts", notnull_cnt_testplan_data);
             }
-            
+
             if (checkOption.toString()
                     .equals("dst_cnts")) {
-                
+
                 resultTableListData.put("dst_cnts", dst_cnt_testplan_data);
-                
+
             }
-            
+
             if (checkOption.toString()
                     .equals("dup_cnts")) {
-                
+
                 resultTableListData.put("dup_cnts", dup_cnt_testplan_data);
             }
-            
+
             if (checkOption.toString()
                     .equals("max_cols")) {
-                
+
                 resultTableListData.put("max_cols", max_col_testplan_data);
             }
-            
+
             if (checkOption.toString()
                     .equals("min_cols")) {
-                
+
                 resultTableListData.put("min_cols", min_col_testplan_data);
             }
-            
+
             if (checkOption.toString()
                     .equals("sum_num_cols")) {
-                
+
                 resultTableListData.put("sum_num_cols", sum_num_testplan_data);
             }
-            
+
         }
         logger.info("Loaded Test Scenarios to data saving or for other data");
         return resultTableListData;
     }
-    
+
     String resultsExport = "";
-    
+
     @FXML
     public void saveResultBtn(ActionEvent ae) {
         Stage mainstage = (Stage) mainvbox.getScene().getWindow();
         DirectoryChooser directoryChooser = new DirectoryChooser();
         FileChooser fc = new FileChooser();
         File dirName = null;
-        
+
         if (tabmantesting.isSelected()) {
             if (stmFile != null) {
                 String file = stmFile.getName();
@@ -4476,7 +4025,7 @@ public class MainStageController implements Initializable {
                 if (dirName != null) {
                     resultsExport = dirName.getAbsolutePath() + "/" + fileName;
                 }
-                
+
             } else {
                 dirName = fc.showOpenDialog(mainstage);
                 if (dirName != null) {
@@ -4491,13 +4040,13 @@ public class MainStageController implements Initializable {
                 resultsExport = dirName.getAbsolutePath() + "/" + fileName;
             }
         }
-        
+
         if (!resultsExport.isEmpty()) {
             saveTestResults(getSelectedTestCases());
         }
-        
+
     }
-    
+
     public void saveTestResults(List checkOptions) {
         logger.info("Saving Test data to excel");
         Map<String, TableView> resultTableList = getSelectedResultTableList(checkOptions);
@@ -4508,22 +4057,22 @@ public class MainStageController implements Initializable {
         if (stmFile != null) //create excel sheet
         {
             try {
-                
+
                 xlsFile = new FileOutputStream(resultsExport);
-                
+
                 int mapIndex = 0;
                 System.out.println("Result Set: " + resultTableList);
                 for (Map.Entry<String, TableView> entry : resultTableList.entrySet()) {
                     String key = entry.getKey();
                     TableView value = entry.getValue();
-                    
+
                     int k = 0, j = 0;
-                    
+
                     shSheet = wbook.createSheet(key.toUpperCase());
-                    
+
                     System.out.println("Key: " + key);
                     System.out.println("srccolnames" + value.getColumns());
-                    
+
                     String[] colNames = {"Source TestCase", "Source Value", "Target TestCase", "Target Value", "Result"};
                     int rowNum = 0;
                     if (!key.contains("data")) {
@@ -4533,12 +4082,12 @@ public class MainStageController implements Initializable {
 //                            System.out.println("colName: " + colNames[l]);
 //                                jxl.write.Label labTemp = new jxl.write.Label(l, 0, colNames[l]);
                             org.apache.poi.ss.usermodel.Cell cell = row.createCell(l);
-                            
+
                             cell.setCellValue(colNames[l]);
-                            
+
                         }
                         for (int m = 0; m < value.getItems().size(); m++) {
-                            
+
                             row = shSheet.createRow(rowNum++);
                             String itemData = value.getItems().get(m).toString();
 
@@ -4550,9 +4099,9 @@ public class MainStageController implements Initializable {
                                 org.apache.poi.ss.usermodel.Cell cell = row.createCell(l);
                                 cell.setCellValue(data.toString());
                             }
-                            
+
                         }
-                        
+
                     } else {
 
                         //For Complete Data
@@ -4568,20 +4117,20 @@ public class MainStageController implements Initializable {
                         } else {
                             cmpltColNames = trg_table;
                         }
-                        
+
                         ObservableList<TableColumn> cmplColList = value.getColumns();
-                        
+
                         for (int l = 0; l < cmplColList.size(); l++) {
 
 //                            System.out.println("colName: " + cmplColList.get(l).getText());
 //                                jxl.write.Label labTemp = new jxl.write.Label(l, 0, colNames[l]);
                             org.apache.poi.ss.usermodel.Cell cell = row.createCell(l);
-                            
+
                             cell.setCellValue(cmplColList.get(l).getText());
-                            
+
                         }
                         for (int m = 0; m < value.getItems().size(); m++) {
-                            
+
                             Row row1 = shSheet.createRow(rowNum++);
                             List itemData = (List) value.getItems().get(m);
 //                            System.out.println(value.getItems().get(m).toString());
@@ -4592,38 +4141,38 @@ public class MainStageController implements Initializable {
                                 if (itemData.get(l) != null) {
                                     data = itemData.get(l).toString();
                                 }
-                                
+
                                 org.apache.poi.ss.usermodel.Cell cell = row1.createCell(l);
                                 cell.setCellValue(data);
 //                          
                             }
-                            
+
                         }
-                        
+
                     }
-                    
+
                 }
-                
+
                 wbook.write(xlsFile);
                 wbook.close();
                 logger.info("Saved Test data to excel: " + xlsFile);
                 new AlertUI("Results Saved Successfully");
-                
+
             } catch (IOException ex) {
                 Logger.getLogger(MainStageController.class
                         .getName()).log(Level.SEVERE, null, ex);
                 logger.error(ex.toString());
                 new ExceptionUI(ex);
-                
+
             }
-            
+
         }
-        
+
     }
-    
+
     @FXML
     private void testcaseRunButtonAction(ActionEvent event) {
-        
+
         System.out.println("Clicked - RunButtonAction");
         automatedTestCase();
         manualviewsummarytable.getItems().clear();
@@ -4631,14 +4180,14 @@ public class MainStageController implements Initializable {
         manualtrgtabview.getItems().clear();
         manualunmatchedtrgtabview.getItems().clear();
         manualunmatchedsrctabview.getItems().clear();
-        
+
     }
-    
+
     private void automatedTestCase() {
         logger.info("Processing Automated Manual Test Cases");
         progstatus_label.setText("Load the Test Cases..");
         progressLoadingImage();
-        
+
         System.out.println("Entered - automatedTestCase");
 
         //progress display
@@ -4652,7 +4201,7 @@ public class MainStageController implements Initializable {
         //clear manual textarea of src and trg
         manualjtasrcquery.setText("");
         manualjtatrgquery.setText("");
-        
+
         String fname = "";
         String fpath = "";
         String testname = "";
@@ -4663,23 +4212,23 @@ public class MainStageController implements Initializable {
         //now focus to manaul tab
         SingleSelectionModel<Tab> selectionModel = tbpanemanautotest.getSelectionModel();
         selectionModel.select(tabmantesting);
-        
+
         SingleSelectionModel<Tab> selectionModel2 = manualResultTabpane.getSelectionModel();
         selectionModel2.select(manualResultSummaryTab);
 //        LoadManualTestCaseUI loadTestCase = new LoadManualTestCaseUI(lfftv, mainvbox);
 //        List fileWhereClause = loadTestCase.getFileWhereClauseData();
 
         fileWhereClause = loadManualTestCaseUI(mainvbox);
-        
+
         Workbook wb = null;
         FileInputStream fs = null;
         try {
             if (!fileWhereClause.isEmpty()) {
-                
+
                 System.out.println("SS: " + fileWhereClause.get(1).toString());
 //            Stage mainstage = (Stage) mainvbox.getScene().getWindow();
                 File file = new File(fileWhereClause.get(0).toString());
-                
+
                 if (file != null) {
                     FileReader fr = null;
                     fname = file.getAbsoluteFile().getName();
@@ -4690,7 +4239,7 @@ public class MainStageController implements Initializable {
                     fs = new FileInputStream(fpath);
                     wb = Workbook.getWorkbook(fs);
                     sh = wb.getSheet(0);
-                    
+
                     testname = sh.getCell(1, 0).getContents();
                     //System.out.println("Auto Test Name : " + testname);
 
@@ -4701,9 +4250,9 @@ public class MainStageController implements Initializable {
                         srcf = new File("conn/" + srcconn + ".con");
                     } else {
                         srcf = new File("files/" + srcconn.substring(srcconn.lastIndexOf(".") + 1, srcconn.length()) + "/" + srcconn);
-                        
+
                     }
-                    
+
                     if (trgconn.toLowerCase().contains("#")) {
                         trgf = new File("conn/" + trgconn + ".con");
                     } else {
@@ -4733,7 +4282,7 @@ public class MainStageController implements Initializable {
                                 trgRTmpPath = getRemoteFile(tftrgconname, "files/" + trgconn.substring(trgconn.lastIndexOf(".") + 1, trgconn.length()) + "/" + trgconn);
                             }
                         }
-                        
+
                         if (srcconn.toLowerCase().contains("#")) {
                             setConnName(tfsrcconname, srcconn, "", "", "db");
                         } else {
@@ -4744,14 +4293,14 @@ public class MainStageController implements Initializable {
                                 srcRTmpPath = getRemoteFile(tfsrcconname, "files/" + srcconn.substring(srcconn.lastIndexOf(".") + 1, srcconn.length()) + "/" + srcconn);
                             }
                         }
-                        
+
                         int totalNoOfRows = sh.getRows();
-                        
+
                         this.setTestCaseRowSize(totalNoOfRows - 7);
                         String tcid = null;
                         String sql;
                         SqlParser sp;
-                        org.hibernate.engine.jdbc.internal.Formatter f;
+                        Formatter f;
                         String formatted_sql_code;
                         srctcidmap = new HashMap<String, String>();
                         trgtcidmap = new HashMap<String, String>();
@@ -4789,13 +4338,13 @@ public class MainStageController implements Initializable {
                             manualjtatrgquery.appendText("\n");
                             System.out.println("srct : " + srctcidmap.get(tcid));
                             System.out.println("trgt : " + trgtcidmap.get(tcid));
-                            
+
                             String srcConnName = "", trgConnName = "";
                             if (getSourceType().equalsIgnoreCase("db") && getTargetType().equalsIgnoreCase("db")) {
                                 System.out.println("Exec Start");
                                 srcConnName = srcconn;
                                 trgConnName = trgconn;
-                                
+
                             } //db to file
                             else if (getSourceType().equalsIgnoreCase("db") && getTargetType().equalsIgnoreCase("ff")) {
                                 System.out.println(" DB and Flat File  Data fetching");
@@ -4805,7 +4354,7 @@ public class MainStageController implements Initializable {
                                 } else {
                                     trgConnName = tftrgconname.getText().substring(tftrgconname.getText().lastIndexOf("::") + 2, tftrgconname.getText().length());
                                 }
-                                
+
                             }//file to db
                             else if (getSourceType().equalsIgnoreCase("ff") && getTargetType().equalsIgnoreCase("db")) {
                                 System.out.println("Flat File and DB Data fetching");
@@ -4817,22 +4366,22 @@ public class MainStageController implements Initializable {
                                 }
                             }//file to file
                             else {
-                                
+
                                 System.out.println("Flat File Data Fetching");
-                                
+
                                 if (trgRTmpPath != null && !trgRTmpPath.isEmpty()) {
                                     trgConnName = trgRTmpPath;
                                 } else {
                                     trgConnName = tftrgconname.getText().substring(tftrgconname.getText().lastIndexOf("::") + 2, tftrgconname.getText().length());
                                 }
-                                
+
                                 if (srcRTmpPath != null && !srcRTmpPath.isEmpty()) {
                                     srcConnName = srcRTmpPath;
                                 } else {
                                     srcConnName = tfsrcconname.getText().substring(tfsrcconname.getText().lastIndexOf("::") + 2, tfsrcconname.getText().length());
                                 }
                             }
-                            
+
                             System.out.println("SRCConn: " + srcConnName);
                             System.out.println("TRGConn: " + trgConnName);
                             automateDBUIThread(srcConnName, srctcidmap.get(tcid), trgConnName, trgtcidmap.get(tcid), tcid);
@@ -4857,25 +4406,21 @@ public class MainStageController implements Initializable {
                         //progress display
                         progstatus_label.setText("Loading Test Cases completed");
                         progressCompletedImage();
-                        
+
                     }
-                    
+
                 }
             } else {
                 progstatus_label.setText("Lets Get Started");
                 progressCompletedImage();
-                
             }
             //System.out.println("Row Value :"+row+" Testcases :"+totalNoOfRows);
         } catch (NullPointerException ex) {
-            Logger.getLogger(MainStageController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
             progstatus_label.setText("Lets Get Started");
             progressCompletedImage();
-            
         } catch (Exception ex) {
-            Logger.getLogger(MainStageController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
             new ExceptionUI(ex);
         } finally {
             progstatus_label.setText("Lets Get Started");
@@ -4883,29 +4428,27 @@ public class MainStageController implements Initializable {
             try {
                 fs.close();
                 wb.close();
-                
             } catch (IOException ex) {
-                Logger.getLogger(MainStageController.class
-                        .getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, ex);
                 new ExceptionUI(ex);
             }
         }
-        
+
     }
-    
+
     public void setTestCaseRowSize(int rowsize) {
-        
+
         this.testcaserowsize = rowsize;
-        
+
     }
-    
+
     public int getTestCaseRowSize() {
-        
+
         return this.testcaserowsize;
     }
-    
+
     public void automateDBUIThread(String srcconn, String srcqry, String trgconn, String trgqry, String tcid) {
-        
+
         Task task = new Task<Void>() {
             @Override
             public Void call() throws SQLException, IOException, FileNotFoundException, ClassNotFoundException, Exception {
@@ -4913,7 +4456,7 @@ public class MainStageController implements Initializable {
                 //System.out.println(tcid + " " + trgqry + " " + srcqry);
                 //call db con mgr and get results 
                 ObservableList<ObservableList> srcdata, trgdata;
-                
+
                 if (srcconn.toLowerCase().contains("#")) {
                     DBConnectionManager dbConManager = new DBConnectionManager();
                     Connection srccon = dbConManager.getDBConFromFile(srcconn);
@@ -4923,7 +4466,7 @@ public class MainStageController implements Initializable {
                     logger.info("Src Conn Name: " + srcconn);
                     srcdata = cSVSQLEngine.getFFTableData(srcconn, srcqry);
                 }
-                
+
                 if (trgconn.toLowerCase().contains("#")) {
                     DBConnectionManager dbConManager = new DBConnectionManager();
                     Connection trgcon = dbConManager.getDBConFromFile(trgconn);
@@ -4946,7 +4489,7 @@ public class MainStageController implements Initializable {
 
                 //testcase pass / fail logic
                 if (srcdata.containsAll(trgdata) && trgdata.containsAll(srcdata)) {
-                    
+
                     String[] srclen = srcqry.toLowerCase().split("count\\(");
                     String[] trglen = srcqry.toLowerCase().split("count\\(");
                     if (srclen.length == 2 && trglen.length == 2) {
@@ -4956,7 +4499,7 @@ public class MainStageController implements Initializable {
                         msb.testcaseid.setValue(tcid.toString());
                         msb.result.setValue("Passed");
                     }
-                    
+
                 } else {
                     String[] srclen = srcqry.toLowerCase().split("count\\(");
                     String[] trglen = srcqry.toLowerCase().split("count\\(");
@@ -4969,7 +4512,7 @@ public class MainStageController implements Initializable {
                     }
                 }
                 atcdata.add(msb);
-                
+
                 Platform.runLater(new Runnable() {
                     public void run() {
                         //add results to table
@@ -4978,42 +4521,42 @@ public class MainStageController implements Initializable {
                         //progress status
                         progstatus_label.setText("Executing Test Cases");
                         progressLoadingImage();
-                        
+
                         if (manualviewsummarytable.getItems().size() == getTestCaseRowSize()) {
 
                             //progress status
                             progstatus_label.setText("Execution Completed");
                             progressCompletedImage();
-                            
+
                         }
-                        
+
                     }
-                    
+
                 });
-                
+
                 return null;
             }
         };
-        
+
         task.setOnRunning(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
                 //progress status
                 progstatus_label.setText("Execution Test Cases");
                 progressLoadingImage();
-                
+
             }
         });
-        
+
         task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
-                
+
                 if (manualviewsummarytable.getItems().size() == getTestCaseRowSize()) {
                     //progress status
                     progstatus_label.setText("Execution Completed");
                     progressCompletedImage();
-                    
+
                 } else {
 
                     //progress status
@@ -5021,22 +4564,20 @@ public class MainStageController implements Initializable {
                     progressCompletedImage();
                 }
             }
-            
+
         });
-        
+
         task.setOnFailed(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent arg0) {
                 progstatus_label.setText("Failed with Exception");
                 progressCompletedImage();
                 Throwable throwable = task.getException();
-                Logger
-                        .getLogger(MainStageController.class
-                                .getName()).log(Level.SEVERE, null, throwable);
+                Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                 new ExceptionUI(new Exception(throwable.getMessage()));
             }
         });
-        
+
         Thread t = new Thread(task);
         t.setDaemon(true);
         t.start();
@@ -5054,13 +4595,13 @@ public class MainStageController implements Initializable {
             } else {
                 connValue = new File(this.getConnNameFromUI(connArea)).getParent() + "?schema=" + FILEPATH;
             }
-            
+
         }
-        
+
         System.out.println("Connvalue: " + connValue);
         return connValue;
     }
-    
+
     private void processSinglTestcase(String tcid) throws Exception {
         SqlParser sqlParser = new SqlParser();
         System.out.println("Entered  - executeSinglTestcase");
@@ -5084,7 +4625,7 @@ public class MainStageController implements Initializable {
             SingleSelectionModel<Tab> selectionModel = manualResultTabpane.getSelectionModel();
             selectionModel.select(manualsrcdttab);
         }
-        
+
         System.out.println("Src: " + tfsrcconname.getText());
         System.out.println("trg: " + tftrgconname.getText());
         //Lets execute single TestPlan
@@ -5099,7 +4640,7 @@ public class MainStageController implements Initializable {
             System.out.println("Source FF");
             srcCon = getManualConnDetails(tfsrcconname, "files/" + tfsrcconname.getText().substring(tfsrcconname.getText().lastIndexOf(".") + 1, tfsrcconname.getText().length()) + "" + tfsrcconname.getText().substring(tfsrcconname.getText().lastIndexOf("/"), tfsrcconname.getText().length()), this.getSourceType(), "src");
         }
-        
+
         if (this.getTargetType().equalsIgnoreCase("db")) {
             System.out.println("Target DB");
             trgCon = getManualConnDetails(tftrgconname, "", this.getTargetType(), "trg");
@@ -5108,10 +4649,10 @@ public class MainStageController implements Initializable {
 //            trgCon = getManualConnDetails(tftrgconname, "files/" + this.getTableNameFromUI("trg") + "." + tftrgconname.getText().substring(tftrgconname.getText().lastIndexOf("/"), tftrgconname.getText().length()), this.getTargetType(), "trg");
             trgCon = getManualConnDetails(tftrgconname, "files/" + tftrgconname.getText().substring(tftrgconname.getText().lastIndexOf(".") + 1, tftrgconname.getText().length()) + "" + tftrgconname.getText().substring(tftrgconname.getText().lastIndexOf("/"), tftrgconname.getText().length()), this.getTargetType(), "trg");
         }
-        
+
         System.out.println("Src Connection: " + srcCon);
         System.out.println("Trg Connection: " + trgCon);
-        
+
         if (manualTestCaseExec) {
             manualTestCaseExec = false;
             //sqlParser.checkSqlQuery(srcqry);
@@ -5132,9 +4673,9 @@ public class MainStageController implements Initializable {
                 SingleSelectionModel<Tab> selectionModel = manualResultTabpane.getSelectionModel();
                 selectionModel.select(manualtrgdttab);
             }
-            
+
         }
-        
+
         if (srcExec.isSelected() && trgExec.isSelected()) {
             if ((!srcCon.isEmpty() && !srcqry.isEmpty()) && (!trgCon.isEmpty() && !trgqry.isEmpty())) {
                 //sqlParser.checkSqlQuery(srcqry);
@@ -5153,7 +4694,7 @@ public class MainStageController implements Initializable {
                 throw new Exception("Select Source query to execute");
             }
         }
-        
+
         if (trgExec.isSelected()) {
             if (!trgCon.isEmpty() && !trgqry.isEmpty()) {
                 //sqlParser.checkSqlQuery(trgqry);
@@ -5166,9 +4707,9 @@ public class MainStageController implements Initializable {
         manualClear.setDisable(false);
         manualRun.setDisable(false);
         manualSave.setDisable(false);
-        
+
     }
-    
+
     public void addColToTable(List colslist, TableView tbl) {
         tbl.getColumns().clear();
         //adding call to the tables
@@ -5183,13 +4724,13 @@ public class MainStageController implements Initializable {
                     return new SimpleStringProperty(param.getValue().get(j) == null ? "null" : param.getValue().get(j).toString());
                 }
             });
-            
+
             tbl.getColumns().addAll(col);
-            
+
         }
-        
+
     }
-    
+
     private void executeSingleTestcase(String con, String qry, TableView tblView) {
         manualsrctabview.getItems().clear();
         manualtrgtabview.getItems().clear();
@@ -5208,7 +4749,7 @@ public class MainStageController implements Initializable {
                 List colslist;
                 if (con.toLowerCase().contains("#")) {
                     DBConnectionManager dbConManager1 = new DBConnectionManager();
-                    
+
                     Connection srccon = dbConManager1.getDBConFromFile(con);
                     data = dbConManager1.getDataFromQuery(srccon, qry);
                     colslist = dbConManager1.getColNames(srccon, qry);
@@ -5229,7 +4770,7 @@ public class MainStageController implements Initializable {
                 srcColList = new ArrayList();
 //                List colslist = cSVSQLEngine.getFFColumns(getConnNameFromUI("src"), qry);
                 srcColList.addAll(colslist);
-                
+
                 Platform.runLater(new Runnable() {
                     public void run() {
                         //adding call to the tables
@@ -5241,24 +4782,24 @@ public class MainStageController implements Initializable {
                         //progress status
                         progstatus_label.setText("Executing Test Cases");
                         progressLoadingImage();
-                        
+
                     }
-                    
+
                 });
                 return null;
             }
         };
-        
+
         task.setOnRunning(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
                 //progress status
                 progstatus_label.setText("Execution Test Cases");
                 progressLoadingImage();
-                
+
             }
         });
-        
+
         task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
@@ -5271,30 +4812,28 @@ public class MainStageController implements Initializable {
                     System.out.println("Processing Comparision");
                     compareSingelTestcase(manualsrctabview, manualtrgtabview);
                 }
-                
+
             }
-            
+
         });
-        
+
         task.setOnFailed(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent arg0) {
                 progstatus_label.setText("Failed with Exception");
                 progressCompletedImage();
                 Throwable throwable = task.getException();
-                Logger
-                        .getLogger(MainStageController.class
-                                .getName()).log(Level.SEVERE, null, throwable);
+                Logger.getLogger(MainStageController.class.getName()).log(Level.SEVERE, null, throwable);
                 new ExceptionUI(new Exception(throwable.getMessage()));
             }
         });
-        
+
         Thread t = new Thread(task);
         t.setDaemon(true);
         t.start();
-        
+
     }
-    
+
     private void compareSingelTestcase(TableView manualsrctabview, TableView manualtrgtabview) {
         System.out.println("Compare Single Test Case");
         manualunmatchedsrctabview.getItems().clear();
@@ -5317,7 +4856,7 @@ public class MainStageController implements Initializable {
         System.out.println("Trg List: " + trgList);
         addColToTable(srcList, manualunmatchedsrctabview);
         addColToTable(trgList, manualunmatchedtrgtabview);
-        
+
         ObservableList srcresult = manualsrctabview.getItems();
         ObservableList trgresult = manualtrgtabview.getItems();
 
@@ -5326,49 +4865,49 @@ public class MainStageController implements Initializable {
         ComparisonResultModel responseModel = null;
         if (srcresult.size() > 0 && trgresult.size() > 0) {
             long start = new Date().getTime();
-            
+
             ComparisonProcessor processor = new ComparisonProcessor();
             processor.setSrcInput(srcresult);
             processor.setTrgInput(trgresult);
             responseModel = processor.process();
-            
+
             long end = new Date().getTime();
-            
+
             System.out.println("TIME TAKEN: " + (end - start) / 1000);
         }
-        
+
         if (responseModel != null) {
             ObservableList src = FXCollections.observableArrayList(responseModel.getSrclist());
             ObservableList trg = FXCollections.observableArrayList(responseModel.getTrglist());
             manualunmatchedsrctabview.setItems(src);
             manualunmatchedtrgtabview.setItems(trg);
         }
-        
+
         long processEnd = new Date().getTime();
-        
+
         System.out.println("TIME process: " + (processEnd - processStart) / 1000);
         //End: breaking the list into chunks: Snehasish
     }
-    
+
     private ObservableList compareSTMValidation(ObservableList stmsrctabview, ObservableList stmtrgtabview) {
         logger.info("Compare STM Data Validation");
         System.out.println("Compare STM Data Validation");
-        
+
         long processStart = new Date().getTime();
         ComparisonResultModel responseModel = null;
         if (stmsrctabview.size() > 0 && stmtrgtabview.size() > 0) {
             long start = new Date().getTime();
-            
+
             ComparisonProcessor processor = new ComparisonProcessor();
             processor.setSrcInput(stmsrctabview);
             processor.setTrgInput(stmtrgtabview);
             responseModel = processor.process();
-            
+
             long end = new Date().getTime();
-            
+
             System.out.println("TIME TAKEN: " + (end - start) / 1000);
         }
-        
+
         ObservableList list = FXCollections.observableArrayList();
         if (responseModel != null) {
 //            ObservableList src = FXCollections.observableArrayList(responseModel.getSrclist());
@@ -5382,37 +4921,37 @@ public class MainStageController implements Initializable {
             list.add(FXCollections.observableArrayList());
             list.add(FXCollections.observableArrayList());
         }
-        
+
         long processEnd = new Date().getTime();
-        
+
         System.out.println("TIME process: " + (processEnd - processStart) / 1000);
         //End: breaking the list into chunks: Snehasish
 
         logger.info("Compare STM Data Validation Completed");
         return list;
     }
-    
+
     @FXML
     public void manualRunButtonAction(ActionEvent ae) {
         fileWhereClause = null;
         try {
             srctcidmap = new HashMap<String, String>();
             trgtcidmap = new HashMap<String, String>();
-            
+
             srctcidmap.put("1", manualjtasrcquery.getSelectedText());
             trgtcidmap.put("1", manualjtatrgquery.getSelectedText());
 
 //            System.out.println("DatL :" + srctcidmap);
 //            System.out.println("Datadf :" + trgtcidmap);
             setTestCaseRowSize(1);
-            
+
             processSinglTestcase("1");
         } catch (Exception ex) {
             logger.info("manualRunButtonAction: ", ex);
             new ExceptionUI(ex);
         }
     }
-    
+
     @FXML
     public void manualClearButtonAction(ActionEvent ae
     ) {
@@ -5424,30 +4963,30 @@ public class MainStageController implements Initializable {
         manualClear.setDisable(true);
         manualSave.setDisable(true);
     }
-    
+
     public Map<String, TableView> getAllManualTable() {
         Map<String, TableView> tableViewKV = new HashMap<String, TableView>();
-        
+
         if (!manualviewsummarytable.getItems().isEmpty()) {
             tableViewKV.put("MANUAL_SUMMARY", manualviewsummarytable);
         }
-        
+
         if (!manualsrctabview.getItems().isEmpty()) {
             tableViewKV.put("MANUAL_SOURCE", manualsrctabview);
         }
-        
+
         if (!manualtrgtabview.getItems().isEmpty()) {
             tableViewKV.put("MANUAL_TARGET", manualtrgtabview);
         }
-        
+
         if (!manualunmatchedsrctabview.getItems().isEmpty()) {
             tableViewKV.put("MANUAL_UNMATCHED_SOURCE", manualunmatchedsrctabview);
         }
-        
+
         if (!manualunmatchedtrgtabview.getItems().isEmpty()) {
             tableViewKV.put("MANUAL_UNMATCHED_TARGET", manualunmatchedtrgtabview);
         }
-        
+
         return tableViewKV;
     }
 
@@ -5456,7 +4995,7 @@ public class MainStageController implements Initializable {
      */
     @FXML
     public void manualSaveButton(ActionEvent ae) {
-        
+
         Stage mainstage = (Stage) mainvbox.getScene().getWindow();
         DirectoryChooser directoryChooser = new DirectoryChooser();
         FileChooser fc = new FileChooser();
@@ -5470,7 +5009,7 @@ public class MainStageController implements Initializable {
                 if (dirName != null) {
                     resultsExport = dirName.getAbsolutePath() + "/" + fileName;
                 }
-                
+
             } else {
                 dirName = directoryChooser.showDialog(mainstage);
                 if (dirName != null) {
@@ -5483,9 +5022,9 @@ public class MainStageController implements Initializable {
                 resultsExport = dirName.getAbsolutePath() + "/Manual_TestCase_" + new SimpleDateFormat("YYYY_MM_dd_HH_MM_SS").format(new Date()) + ".xls";
             }
         }
-        
+
         if (!resultsExport.isEmpty()) {
-            
+
             Map<String, TableView> tableData = getAllManualTable();
             XSSFWorkbook wbook = new XSSFWorkbook();
             XSSFSheet shSheet;
@@ -5498,15 +5037,15 @@ public class MainStageController implements Initializable {
 
 //                System.out.println("File Name: " + esbStmFile.getName().substring(0, esbStmFile.getName().lastIndexOf('.')));
                     int mapIndex = 0;
-                    
+
                     for (Map.Entry<String, TableView> entry : tableData.entrySet()) {
                         String key = entry.getKey();
                         TableView value = entry.getValue();
-                        
+
                         int k = 0, j = 0;
-                        
+
                         shSheet = wbook.createSheet(key.toUpperCase());
-                        
+
                         System.out.println("srccolnames" + value.getColumns());
                         int rowIndex = 0;
                         if (key.equalsIgnoreCase("MANUAL_SUMMARY")) {
@@ -5517,17 +5056,17 @@ public class MainStageController implements Initializable {
                             font.setFontHeight(14);
                             Row row = shSheet.createRow(rowIndex++);
                             for (int l = 0; l < manualSrcCol.size(); l++) {
-                                
+
                                 org.apache.poi.ss.usermodel.Cell cell = row.createCell(l);
                                 cell.setCellValue(manualSrcCol.get(l).getText());
 //                                  
                             }
                             for (int m = 0; m < value.getItems().size(); m++) {
-                                
+
                                 String itemData = value.getItems().get(m).toString();
                                 itemData.replace("[", "").replace("]", "");
                                 System.out.println(value.getItems().get(m).toString());
-                                
+
                                 String[] itemDataList = itemData.split("#");
                                 Row row1 = shSheet.createRow(m + 1);
                                 System.out.println("Lenght: " + itemDataList.length);
@@ -5535,37 +5074,37 @@ public class MainStageController implements Initializable {
                                     String data = itemDataList[l];
                                     org.apache.poi.ss.usermodel.Cell cell = row1.createCell(l);
                                     cell.setCellValue(data);
-                                    
+
                                 }
-                                
+
                             }
-                            
+
                         } else {
 
                             //For Complete Data
                             List cmpltColNames;
-                            
+
                             XSSFFont cellFont = wbook.createFont();
                             cellFont.setBold(true);
                             cellFont.setFamily(FontFamily.ROMAN);
                             cellFont.setFontHeight(14);
                             Row row = shSheet.createRow(rowIndex++);
-                            
+
                             if (key.contains("src")) {
                                 cmpltColNames = src_table;
                             } else {
                                 cmpltColNames = trg_table;
                             }
                             ObservableList<TableColumn> cmpltColNames1 = value.getColumns();
-                            
+
                             for (int l = 0; l < cmpltColNames1.size(); l++) {
                                 org.apache.poi.ss.usermodel.Cell cell = row.createCell(l);
-                                
+
                                 cell.setCellValue(cmpltColNames1.get(l).getText());
                             }
-                            
+
                             for (int m = 0; m < value.getItems().size(); m++) {
-                                
+
                                 Row row1 = shSheet.createRow(m + 1);
                                 List itemData = (List) value.getItems().get(m);
 
@@ -5581,30 +5120,30 @@ public class MainStageController implements Initializable {
 
                                     org.apache.poi.ss.usermodel.Cell cell = row1.createCell(l);
                                     cell.setCellValue(data);
-                                    
+
                                 }
-                                
+
                             }
-                            
+
                         }
-                        
+
                     }
-                    
+
                     wbook.write(xlsFile);
                     wbook.close();
-                    
+
                     new AlertUI("Results Saved Successfully");
-                    
+
                 } catch (IOException ex) {
                     Logger.getLogger(MainStageController.class
                             .getName()).log(Level.SEVERE, null, ex);
                     new ExceptionUI(ex);
-                    
+
                 }
             }
         }
     }
-    
+
     public String setWhereCondition(String sql, String whereClause, String groupClause, String havingClause, String orderBy) {
         StringBuffer sqlBuffer = new StringBuffer();
         boolean querywhereUpdate = false;
@@ -5613,16 +5152,16 @@ public class MainStageController implements Initializable {
         System.out.println("Having: " + sql.toLowerCase().lastIndexOf("having"));
         System.out.println("Group: " + sql.toLowerCase().lastIndexOf("group by"));
         System.out.println("Order by: " + sql.toLowerCase().lastIndexOf("order by"));
-        
+
         System.out.println("Where: " + whereClause + " Group Clause: " + groupClause + " having: " + havingClause + " order by: " + orderBy);
-        
+
         int selectCount = 0;
         Pattern p = Pattern.compile("select");
         Matcher m = p.matcher(sql.toLowerCase());
         while (m.find()) {
             selectCount++;
         }
-        
+
         int withCount = 0;
         Pattern p1 = Pattern.compile("with");
         Matcher m1 = p1.matcher(sql.toLowerCase());
@@ -5633,9 +5172,9 @@ public class MainStageController implements Initializable {
         if (selectCount == 1 && withCount == 0) {
             //where Clause updation
             if (!whereClause.isEmpty()) {
-                
+
                 if (sql.toLowerCase().contains("group by")) {
-                    
+
                     if (!sql.toLowerCase().contains("where")) {
                         sql = sqlBuffer.append(sql.substring(0, sql.toLowerCase().lastIndexOf("group by")) + " where " + whereClause + " " + sql.toLowerCase().substring(sql.toLowerCase().lastIndexOf("group by"), sql.length())).toString();
                         sqlBuffer.delete(0, sqlBuffer.length());
@@ -5651,7 +5190,7 @@ public class MainStageController implements Initializable {
 //                System.out.println("where: " + querywhereUpdate);
                 if (querywhereUpdate == false) {
                     if (sql.toLowerCase().contains("having")) {
-                        
+
                         if (!sql.toLowerCase().contains("where")) {
                             sql = sqlBuffer.append(sql.substring(0, sql.toLowerCase().lastIndexOf("having")) + " where " + whereClause + " " + sql.toLowerCase().substring(sql.toLowerCase().lastIndexOf("having"), sql.length())).toString();
                             sqlBuffer.delete(0, sqlBuffer.length());
@@ -5663,12 +5202,12 @@ public class MainStageController implements Initializable {
                         }
                         querywhereUpdate = true;
                     }
-                    
+
                 }
                 System.out.println("where: " + querywhereUpdate);
                 if (querywhereUpdate == false) {
                     if (sql.toLowerCase().contains("order by")) {
-                        
+
                         if (!sql.toLowerCase().contains("where")) {
                             sql = sqlBuffer.append(sql.substring(0, sql.toLowerCase().lastIndexOf("order by")) + " where " + whereClause + " " + sql.toLowerCase().substring(sql.toLowerCase().lastIndexOf("order by"), sql.length())).toString();
                             sqlBuffer.delete(0, sqlBuffer.length());
@@ -5679,12 +5218,12 @@ public class MainStageController implements Initializable {
 //                            System.out.println("Updated where: " + sqlLower);
                         }
                         querywhereUpdate = true;
-                        
+
                     }
                 }
                 System.out.println("where: " + querywhereUpdate);
                 if (querywhereUpdate == false) {
-                    
+
                     if (!sql.toLowerCase().contains("where")) {
                         sql = sqlBuffer.append(sql + " where " + whereClause).toString();
                         sqlBuffer.delete(0, sqlBuffer.length());
@@ -5695,14 +5234,14 @@ public class MainStageController implements Initializable {
 //                        System.out.println("Updated where: " + sqlLower);
                     }
                     querywhereUpdate = true;
-                    
+
                 }
             }
             //End of where Clause Updation
             boolean groupClauseUpdate = false;
             //Group Clause Clause updation
             if (!groupClause.isEmpty()) {
-                
+
                 if (sql.toLowerCase().contains("having")) {
                     if (sql.toLowerCase().contains("group by")) {
                         sql = sqlBuffer.append(sql.substring(0, sql.toLowerCase().lastIndexOf("having")) + " , " + groupClause + " " + sql.toLowerCase().substring(sql.toLowerCase().lastIndexOf("having"), sql.length())).toString();
@@ -5744,7 +5283,7 @@ public class MainStageController implements Initializable {
             boolean havingClauseUpdate = false;
             //Group havin Clause updation
             if (!havingClause.isEmpty()) {
-                
+
                 if (sql.toLowerCase().contains("order by")) {
                     if (sql.toLowerCase().contains("having")) {
                         sql = sqlBuffer.append(sql.substring(0, sql.toLowerCase().lastIndexOf("order by")) + " and  " + havingClause + " " + sql.toLowerCase().substring(sql.toLowerCase().lastIndexOf("order by"), sql.length())).toString();
@@ -5755,7 +5294,7 @@ public class MainStageController implements Initializable {
                         sqlBuffer.delete(0, sqlBuffer.length());
 //                        System.out.println("Updated Having: " + sqlLower);
                     }
-                    
+
                 } else {
                     if (sql.toLowerCase().contains("having")) {
                         sql = sqlBuffer.append(sql + " and " + havingClause).toString();
@@ -5772,7 +5311,7 @@ public class MainStageController implements Initializable {
 
             //Group order by Clause updation
             if (!orderBy.isEmpty()) {
-                
+
                 if (sql.toLowerCase().contains("order by")) {
                     if (sql.toLowerCase().contains("asc")) {
                         if (orderBy.contains("asc")) {
@@ -5804,20 +5343,20 @@ public class MainStageController implements Initializable {
                     sqlBuffer.delete(0, sqlBuffer.length());
 //                    System.out.println("Updated Order by: " + sqlLower);
                 }
-                
+
             }
         } else {
-            
+
         }
         //End of order by Clause Updation
 //        System.out.println("SQL Buffer: " + sqlBuffer);
         return sql;
     }
-    
+
     public List loadManualTestCaseUI(VBox mainvbox) {
-        
+
         dialog = new Dialog<>();
-        
+
         dialog.setTitle("Test Case Document");
         dialog.setHeaderText("Load the Test Case File");
 
@@ -5844,7 +5383,7 @@ public class MainStageController implements Initializable {
         localfilebt = new Button();
         localfilebt.setText("Upload File");
         localfilebt.setMaxWidth(150);
-        
+
         whereClausesrc = new TextArea();
         whereClausesrc.setPromptText("Ex: col1 = 'value1' and col2 = 'value2 ");
         whereClausesrc.setMaxWidth(250);
@@ -5855,47 +5394,47 @@ public class MainStageController implements Initializable {
         whereClausetrg.setMaxWidth(250);
         whereClausetrg.setMaxHeight(50);
         whereClausetrg.setDisable(true);
-        
+
         groupBysrc = new TextArea();
         groupBysrc.setPromptText("Ex: having col1 = 'value1' order by colname");
         groupBysrc.setMaxWidth(250);
         groupBysrc.setMaxHeight(30);
         groupBysrc.setDisable(true);
-        
+
         groupBytrg = new TextArea();
         groupBytrg.setPromptText("Ex: having col1 = 'value1' order by colname");
         groupBytrg.setMaxWidth(250);
         groupBytrg.setMaxHeight(30);
         groupBytrg.setDisable(true);
-        
+
         havingSrc = new TextArea();
         havingSrc.setPromptText("Ex: having col1 = 'value1' order by colname");
         havingSrc.setMaxWidth(250);
         havingSrc.setMaxHeight(30);
         havingSrc.setDisable(true);
-        
+
         havingTrg = new TextArea();
         havingTrg.setPromptText("Ex: having col1 = 'value1' order by colname");
         havingTrg.setMaxWidth(250);
         havingTrg.setMaxHeight(30);
         havingTrg.setDisable(true);
-        
+
         orderBySrc = new TextArea();
         orderBySrc.setPromptText("Ex: having col1 = 'value1' order by colname");
         orderBySrc.setMaxWidth(250);
         orderBySrc.setMaxHeight(30);
         orderBySrc.setDisable(true);
-        
+
         orderByTrg = new TextArea();
         orderByTrg.setPromptText("Ex: having col1 = 'value1' order by colname");
         orderByTrg.setMaxWidth(250);
         orderByTrg.setMaxHeight(30);
         orderByTrg.setDisable(true);
-        
+
         grid.add(msgLable, 0, 1);
-        
+
         grid.add(localfilebt, 2, 1);
-        
+
         grid.add(new Label("Source Where Condition:"), 0, 3);
         grid.add(whereClausesrc, 0, 4, 2, 1);
         grid.add(new Label("Target Where Condition:"), 2, 3);
@@ -5913,7 +5452,7 @@ public class MainStageController implements Initializable {
         grid.add(orderBySrc, 0, 16, 2, 1);
         grid.add(new Label("Target Order By Condition:"), 2, 15);
         grid.add(orderByTrg, 2, 16, 2, 1);
-        
+
         msglabel = new Label("Choose Test Case File");
         grid.add(msglabel, 0, 19, 2, 1);
 
@@ -5921,9 +5460,9 @@ public class MainStageController implements Initializable {
         Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
         loginButton.setDisable(true);
         test.setDisable(true);
-        
+
         localfilebt.textProperty().addListener((observable, oldValue, newValue) -> {
-            
+
             if (!filetypecmb.getValue().toString().trim().isEmpty() && !hosturl.getText().trim().isEmpty() && !jarpath.getText().trim().isEmpty()) {
                 //loginButton.setDisable(newValue.trim().isEmpty());
                 test.setDisable(newValue.trim().isEmpty());
@@ -5931,18 +5470,18 @@ public class MainStageController implements Initializable {
                 whereClausesrcStatus.setDisable(false);
                 msglabel.setText("Message: Please Test to enable Add button");
             }
-            
+
         });
-        
+
         dialog.getDialogPane().setContent(grid);
 
         //localfilebt
         localfilebt.setOnAction((ActionEvent event) -> {
-            
+
             String fname = "";
             String fpath = "";
             try {
-                
+
                 Stage mainstage = (Stage) mainvbox.getScene().getWindow();
                 file = fileChooser.showOpenDialog(mainstage);
                 FileReader fr = null;
@@ -5967,7 +5506,7 @@ public class MainStageController implements Initializable {
                     orderBySrc.setDisable(false);
                     orderByTrg.setDisable(false);
                     dialog.getDialogPane().lookupButton(loginButtonType).setDisable(false);
-                    
+
                 } else {
                     msglabel.setStyle("-fx-text-fill: red");
                     msglabel.setText("Message: Please Load Valid the File");
@@ -5976,13 +5515,13 @@ public class MainStageController implements Initializable {
                 msglabel.setStyle("-fx-text-fill: red");
                 msglabel.setText("Message: Please Load the File");
             }
-            
+
         });
         List fileWhereClause = new ArrayList();
         // Convert the result to a username-password-pair when the login button is clicked.
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == loginButtonType) {
-                
+
                 fileWhereClause.add(file);
                 fileWhereClause.add(whereClausesrc.getText());
                 fileWhereClause.add(whereClausetrg.getText());
@@ -5996,15 +5535,15 @@ public class MainStageController implements Initializable {
             }
             return null;
         });
-        
+
         Optional<Pair<String, String>> result = dialog.showAndWait();
         if (fileWhereClause.isEmpty()) {
             return null;
         }
-        
+
         return fileWhereClause;
     }
-    
+
     public List<String> readFF(String connPath) throws FileNotFoundException, IOException {
         logger.info("Connection Path: " + connPath);
         File connFile = new File(connPath);
@@ -6015,19 +5554,19 @@ public class MainStageController implements Initializable {
         while ((data = br.readLine()) != null) {
             fileData.add(data);
         }
-        
+
         return fileData;
     }
     boolean radioChk = false;
     boolean fromChk = false;
     boolean toChk = false;
-    
+
     private void showInrRule(List inrCol, List inrRuleData) {
         incDiaLog = new Dialog<>();
         incDiaLog.setTitle("Incremental Rule Condition");
         System.out.println("Processing UI");
         Stage stage = (Stage) incDiaLog.getDialogPane().getScene().getWindow();
-        
+
         incOkBut = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         incDiaLog.getDialogPane().getButtonTypes().addAll(incOkBut, ButtonType.CANCEL);
         GridPane grid = new GridPane();
@@ -6040,7 +5579,7 @@ public class MainStageController implements Initializable {
         gridInter.setPadding(new Insets(20, 10, 10, 10));
         RadioButton colCheck = null;
         ToggleGroup group = new ToggleGroup();
-        
+
         int row = 1;
         int col = 0;
         Text gridInterhead = new Text("Incremental Columns ");
@@ -6058,17 +5597,17 @@ public class MainStageController implements Initializable {
                 row++;
             }
         }
-        
+
         LocalDateTimePicker fromDateUI = new LocalDateTimePicker();
         LocalDateTimePicker toDateUI = new LocalDateTimePicker();
-        
+
         row = 0;
         grid.add(gridInter, 0, row, 3, 1);
         grid.add(new Text(), 0, row++, 3, 1);
-        
+
         Text from = new Text("From ");
         from.setFont(javafx.scene.text.Font.font("Times New Roman", 16));
-        
+
         Text to = new Text("To ");
         to.setFont(javafx.scene.text.Font.font("Times New Roman", 16));
         row++;
@@ -6084,19 +5623,19 @@ public class MainStageController implements Initializable {
         Node loginButton = incDiaLog.getDialogPane().lookupButton(incOkBut);
         loginButton.setDisable(true);
         incDiaLog.getDialogPane().setContent(grid);
-        
+
         group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
-                
+
                 if (group.getSelectedToggle() != null) {
-                    
+
                     radioChk = true;
-                    
+
                 }
-                
+
             }
         });
-        
+
         check.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -6104,7 +5643,7 @@ public class MainStageController implements Initializable {
                     loginButton.setDisable(false);
                 }
             }
-            
+
         });
         incDiaLog.setResultConverter(dialogButton
                 -> {
@@ -6115,17 +5654,17 @@ public class MainStageController implements Initializable {
         }
         );
         Optional<Pair<String, String>> result = incDiaLog.showAndWait();
-        
+
         result.ifPresent(dbconstring
                 -> {
             System.out.println("Clicked - Ok Button");
-            
+
             inrRuleData.add(group.selectedToggleProperty().getValue().getUserData());
             inrRuleData.add(fromDateUI.getLocalDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             inrRuleData.add(toDateUI.getLocalDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-            
+
         }
         );
     }
-    
+
 }

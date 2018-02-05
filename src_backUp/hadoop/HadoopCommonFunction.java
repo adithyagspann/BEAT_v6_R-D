@@ -70,7 +70,7 @@ public class HadoopCommonFunction {
      * @param charConvDecdr
      * @return true if the sqoop import is successful else false
      */
-    public String sqoopDataImport(String srcJdbcUrl,
+    public void sqoopDataImport(String srcJdbcUrl,
             String srcDBUserName,
             String srcDBPassword,
             String hiveMapCol,
@@ -135,7 +135,7 @@ public class HadoopCommonFunction {
             String spltBy = (!"".equals(splitByColumn)) ? "--split-by" : "";
             String fieldTerminatorModified = fieldTerminator;
             String lineTerminatorModified = lineTerminator;
-            String nullValue = "null";
+            String nullValue = "\\N";
 
             String srcPwdOption = srcDBPasswordFile.isEmpty() ? "--password" : "--password-file";
 
@@ -145,19 +145,19 @@ public class HadoopCommonFunction {
 
             String charConvDecodProp = charConvDecdr ? "-Dmapreduce.map.java.opts=-Djava.net.preferIPv4Stack=true -Ddb2.jcc.charsetDecoderEncoder=3" : "";
 
-            sqoopImpQuery = new StringBuilder("sqoop import ");
+            sqoopImpQuery = new StringBuilder("sqoop import");
             sqoopImpQuery.append(charConvDecodProp).append(" ").append(libJar).append(" ").append(dependentJars).append(" --connect ").append(srcJdbcUrl).append(" ").append(driverParam);
             sqoopImpQuery.append(" ").append(jdbcDriver).append(" --username ").append(srcDBUserName).append(" ").append(srcPwdOption).append(" ").append(srcPwd);
-            sqoopImpQuery.append(" ").append(srcHiveMapCol).append(" ").append(hiveMapCol).append(" --table ").append(srcSchemaName.isEmpty()? "":srcSchemaName+".").append(srcTableName).append(" ").append(whereClause).append(" ").append(srcWhereCondn.isEmpty() ? "" :"\""+srcWhereCondn+"\"").append(" ");
-            sqoopImpQuery.append(" ").append(srcColClause).append(" '").append(srcColumns).append("' ").append(spltBy).append(" ").append(splitByColumn).append(" --as-textfile --fields-terminated-by '").append(fieldTerminatorModified);
-            sqoopImpQuery.append("' --lines-terminated-by '").append(lineTerminatorModified).append("' --hive-import ").append(hiveCreateTable);
+            sqoopImpQuery.append(" ").append(srcHiveMapCol).append(" ").append(hiveMapCol).append(" --table ").append(srcTableName).append(" ").append(whereClause).append(" ").append(srcWhereCondn);
+            sqoopImpQuery.append(" ").append(srcColClause).append(" ").append(srcColumns).append(" ").append(spltBy).append(" ").append(splitByColumn).append(" --as-textfile --fields-terminated-by ").append(fieldTerminatorModified);
+            sqoopImpQuery.append(" --lines-terminated-by " + lineTerminatorModified + " --hive-import " + hiveCreateTable);
             sqoopImpQuery.append(" ").append(hiveOverwrite).append(" ").append(hiveDropdelims).append(" --hive-table ").append(tgtSchemaName).append(".").append(tgtTableName);
             sqoopImpQuery.append(" ").append(partitionKeyClause).append(" ").append(partitionKey).append(" ").append(partitionValClause).append(" ").append(partitionValue);
-            sqoopImpQuery.append(" --delete-target-dir --null-string '").append(nullValue).append("' --null-non-string '").append(nullValue);
-            sqoopImpQuery.append("' --target-dir ").append(tmpPath).append(" -m ").append((numMapper.isEmpty() || numMapper.equals("0") ? "1" : numMapper));//.append(" --schema ").append(srcSchemaName).append(" --outdir ").append(outputSrcFileDir);
+            sqoopImpQuery.append(" --delete-target-dir --null-string ").append(nullValue).append(" --null-not-string ").append(nullValue);
+            sqoopImpQuery.append(" --targer-dir ").append(tmpPath).append(" -m ").append((numMapper.isEmpty() || numMapper.equals("0") ? "1" :  numMapper)).append(" --schema ").append(srcSchemaName).append(" --outdir ").append(outputSrcFileDir);
 
         }
-        return sqoopImpQuery.toString();
+
     }
 
     /**
@@ -227,7 +227,7 @@ public class HadoopCommonFunction {
             String numMapper,
             String fieldTerminator,
             String lineTerminator,
-            boolean tgtTableCreateInd,
+            Boolean tgtTableCreateInd,
             String partitionKey,
             String partitionValue,
             Boolean tgtOverwriteInd,

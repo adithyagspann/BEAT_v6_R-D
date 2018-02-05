@@ -24,28 +24,6 @@ public class QueryGenerator {
         formatter = new BasicFormatterImpl();
     }
 
-    public String getLimitQuery(String schema, String tblname, String qrGen, String dbType) {
-        if (qrGen.equalsIgnoreCase("db")) {
-            if (!dbType.equalsIgnoreCase("oracle")) {
-                qry = "select * from " + schema + "." + tblname + " limit 1";
-            } else {
-                qry = "select * from " + schema + "." + tblname + " where ROWNUM=1";
-            }
-        } else {
-            LOGGER.info("tableName: " + tblname);
-            qry = "select count(1) from \"" + tblname + "\" limit 1";
-
-            LOGGER.info("tableNameGot: " + qry);
-
-        }
-        if (dbType.equalsIgnoreCase("db2")) {
-            qry += " with ur";
-        }
-        LOGGER.info("Total Count Query Generated ");
-
-        return formatter.format(qry);
-    }
-
     public String getTotalCntQueries(String schema, String tblname, String data, String qrGen, String hostType, String trgRule, String dbType, String incRule) {
         if (qrGen.equalsIgnoreCase("db")) {
 
@@ -154,7 +132,7 @@ public class QueryGenerator {
 
             if (hostType.equalsIgnoreCase("trg")) {
                 if (trgRule.isEmpty()) {
-                    qry = "select count(1) as " + data.trim() + " from \"" + tblname + "\" where lower(" + data.trim() + ") is null ";// or lower(" + data.trim() + ") ='' ";
+                    qry = "select count(1) as " + data.trim() + " from \"" + tblname + "\" where lower(" +  data.trim() + ") is null ";// or lower(" + data.trim() + ") ='' ";
                 } else {
                     if (trgRule.toLowerCase().startsWith("where")) {
                         qry = "select count(1) as " + data.trim() + " from \"" + tblname + "\" " + trgRule + " and (lower(" + data.trim() + ") = 'null";// or lower(" + data.trim() + ") ='')";
@@ -695,4 +673,5 @@ public class QueryGenerator {
 //
 //        return "char(" + colName + ")";
 //    }
+
 }

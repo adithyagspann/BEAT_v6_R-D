@@ -6,15 +6,17 @@
 package remoteutility;
 
 import com.jcraft.jsch.JSchException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+import remoteutility.RemoteFileDownload;
 
 /**
  *
- * @author Ravindra 
+ * @author Ravindra
  */
 public class ScpDaemon {
    
